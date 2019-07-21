@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Inscription</title>
+		
+		<!-- CSS -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" >
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="header clearfix">
+				<h1 class="text-muted">Gestionnaire de rendez-vous</h1>
+			</div>
+
+			<div class="jumbotron">
+				<div class="header clearfix">
+					<h1 class="text-muted">Inscription</h1>
+				</div>
+				
+				<form method="POST">
+					<div class="form-group">
+						<label for="inputNom">Nom</label>
+						<input type="text" value="" class="form-control" name="nom" id="inputNom" placeholder="Nom" required autofocus>
+					</div>
+
+					<div class="form-group">
+						<label for="inputPrenom">Prénom</label>
+						<input type="text" value="" class="form-control" name="prenom" id="inputPrenom" placeholder="Prénom" required autofocus>
+					</div>
+
+					<div class="form-group">
+						<label for="inputMotdepasse">Mot de passe</label>
+						<input type="password" value="" class="form-control" name="motdepasse" id="inputMotdepasse" placeholder="Mot de passe" required autofocus>
+					</div>
+
+					<div class="form-group">
+						<label for="inputConfirmationmotdepasse">Confirmation du mot de passe</label>
+						<input type="password" value="" class="form-control" name="confirmationmotdepasse" id="inputConfirmationmotdepasse" placeholder="Confirmation mot de passe" required autofocus>
+					</div>
+
+					<div class="form-group">
+						<label for="inputEmail">Email</label>
+						<input type="text" value="" class="form-control" name="email" id="inputEmail" placeholder="Email" required autofocus>
+					</div>
+
+					<div class="form-group">
+						<label for="inputTelephone">Téléphone</label>
+						<input type="text" value="" class="form-control" name="telephone" id="inputTelephone" placeholder="Téléphone" required autofocus>
+					</div>
+
+					<div class="form-group">
+						<label>Rôle</label>
+						<select class="form-control" id="exampleSelect1" name="role">
+				        	<option selected="select" disabled>Sélectionnez un role</option>
+				       		<hr />
+				       		<option value="Élève">Élève</option>
+				    		<option value="Enseignant">Enseignant</option>
+				    	</select>
+					</div>
+
+					<input type="submit" name="inscription" class="btn btn-secondary" value="Inscription">
+				</form>
+			</div>
+
+			<footer>
+				<p>Copyright &copy; Cheik-Siramakan Keita 2019</p>
+			</footer>
+		</div>
+
+		<!-- Scripts -->
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	</body>
+</html>

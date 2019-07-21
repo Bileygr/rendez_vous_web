@@ -22,6 +22,16 @@ class Utilisateur{
 		$this->dateAjout = $dateAjout;
 	}
 
+	public function make_password($motdepasse){
+		$motdepasse = password_hash($motdepasse, PASSWORD_BCRYPT);
+		return $motdepasse;
+	}
+
+	public function verify_password($motdepasse, $modepasse_crypte){
+		$check = password_verify($motdepasse, $modepasse_crypte);
+		return $check;
+	}
+
 	public function getId(){return $this->id;}
 	public function getNom(){return $this->nom;}
 	public function getPrenom(){return $this->prenom;}
@@ -36,7 +46,10 @@ class Utilisateur{
 	public function setNom($nom){return $this->nom = $nom;}
 	public function setPrenom($prenom){return $this->prenom = $prenom;}
 	public function setRole($role){return $this->role = $role;}
-	public function setMotdepasse($motdepasse){return $this->motdepasse = $motdepasse;}
+	public function setMotdepasse($motdepasse){
+		$motdepasse = password_hash($motdepasse, PASSWORD_BCRYPT);
+		return $this->motdepasse = $motdepasse;
+	}
 	public function setTelephone($telephone){return $this->telephone = $telephone;}
 	public function setEmail($email){return $this->email = $email;}
 	public function setDerniereconnexion($derniereConnexion){return $this->derniereConnexion = $derniereConnexion;}

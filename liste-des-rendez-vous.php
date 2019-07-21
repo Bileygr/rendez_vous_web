@@ -1,5 +1,5 @@
 <?php
 require("app/controller/DefaultController.php");
 $defaultcontroller = new DefaultController;
-$defaultcontroller->index();
+$defaultcontroller->liste_des_rendez_vous();
 ?>
