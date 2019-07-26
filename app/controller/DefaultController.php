@@ -7,9 +7,8 @@ require_once("app/model/entity/Utilisateur.php");
 
 class DefaultController{
 	public function accueil(){
-		$engine = new Engine();
-
 		session_start();
+		$engine = new Engine();
 
 		if(isset($_SESSION["utilisateur"])){
 			$utilisateur = $_SESSION["utilisateur"];
@@ -21,6 +20,24 @@ class DefaultController{
 			}
 		}else{
 			$engine->render("accueil.html");
+		}
+	}
+
+	public function ajouter_une_demande(){
+		session_start();
+		var_dump($_SESSION["enseignant"]);
+		$enseignant = $_SESSION["enseignant"];
+		$engine = new Engine;
+		$engine->assign("enseignant", $enseignant->getNom()." ".$enseignant->getPrenom());
+		$engine->render("ajouter-une-demande.html");
+
+		if(isset($_POST["demande"])){
+			if(!empty($_POST["objet"]) && !empty($_POST["date"])){
+				$objet = $_POST["objet"];
+				$message = $_POST["message"];
+				$date = $_POST["date"];
+				
+			}
 		}
 	}
 
@@ -116,12 +133,27 @@ class DefaultController{
             			<td>".$utilisateur->getEmail()."</td>
             			<td>".$utilisateur->getDerniereconnexion()."</td>
             			<td>".$utilisateur->getDateajout()."</td>
+            			<td>
+            				<form method=\"POST\">
+            					<input type=\"text\" name=\"id\" value=\"".$utilisateur->getId()."\" hidden=\"hidden\">
+            					<input type=\"submit\" name=\"ajouter\" class=\"btn btn-secondary\" value=\"Ajouter\">
+            				</form>
+            			</td>
           			</tr>
 				";
 		}
 
 		$engine->assign("liste", $listedesenseignants);
 		$engine->render("liste-des-enseignants.html");
+
+		if(isset($_POST["ajouter"])){
+			//echo "La condition pour le bouton d'ajout fonctionne.";
+			session_start();
+			$utilisateurs = $utilisateurDAO->findBy("id", $_POST["id"]);
+			$_SESSION["enseignant"] = $utilisateurs[0];
+
+			header("Location: http://127.0.0.1/rendez_vous_web/ajouter-une-demande.php");
+		}
 	}
 
 	public function liste_des_rendez_vous(){
@@ -153,12 +185,31 @@ class DefaultController{
             			<td>".$demande->getStatus()."</td>
             			<td>".$confirmation."</td>
             			<td>".$demande->getDateajout()."</td>
+            			<td>
+	            			<form method=\"POST\">
+	            				<input type=\"text\" name=\"id\" class=\"btn btn-secondary\" value=".$demande->getId()." hidden>
+	            				<input type=\"submit\" name=\"effacer\" class=\"btn btn-secondary\" value=\"Effacer\">
+	            			</form>
+            			</td>
           			</tr>
 				";
 		}
 
 		$engine->assign("liste", $listedesdemandes);
 		$engine->render("liste-des-rendez-vous.html");
+
+		if(isset($_POST["effacer"])){
+			if(!empty($_POST["id"])){
+				$id = $_POST["id"];
+
+				$demandeDAO = new DemandeDAO;
+				$demandes = $demandeDAO->findBy("id", $id);
+				
+				if($demandeDAO->delete($demandes[0])){
+					header("Location: http://127.0.0.1/rendez_vous_web/liste-des-rendez-vous.php");
+				}
+			}
+		}
 	}
 
 	public function modification_de_vos_informations(){

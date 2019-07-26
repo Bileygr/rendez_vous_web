@@ -3,6 +3,18 @@ require_once("conf/connection.php");
 require_once("app/model/entity/Demande.php");
 
 class DemandeDAO{
+	public function delete($demande){
+		$connect = new Connect();
+		$connection = $connect->connexion();
+
+		$query = $connection->prepare("DELETE FROM demande WHERE id = :id");
+		$result = $query->execute(["id"=>$demande->getId()]);
+
+		$query = null;
+		$connection = null;	
+		return $result;
+	}
+
 	public function findAll(){
 		$connect = new Connect();
 		$connection = $connect->connexion();
