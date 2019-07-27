@@ -1,8 +1,12 @@
 <?php 
 require_once("app/Engine.php");
 require_once("app/model/dao/DemandeDAO.php");
+require_once("app/model/dao/MessageDAO.php");
+require_once("app/model/dao/RDVDAO.php");
 require_once("app/model/dao/UtilisateurDAO.php");
 require_once("app/model/entity/Demande.php");
+require_once("app/model/entity/Message.php");
+require_once("app/model/entity/RDV.php");
 require_once("app/model/entity/Utilisateur.php");
 
 class DefaultController{
@@ -14,9 +18,9 @@ class DefaultController{
 			$utilisateur = $_SESSION["utilisateur"];
 
 			if($utilisateur->getRole() == "Élève"){
-				$engine->render("accueil-jeune.html");
+				$engine->render("accueil-connecte.html");
 			}elseif ($utilisateur->getRole() == "Enseignant"){
-				$engine->render("accueil-enseignant.html");
+				$engine->render("accueil-connecte.html");
 			}
 		}else{
 			$engine->render("accueil.html");
@@ -25,18 +29,58 @@ class DefaultController{
 
 	public function ajouter_une_demande(){
 		session_start();
-		var_dump($_SESSION["enseignant"]);
 		$enseignant = $_SESSION["enseignant"];
+		$utilisateur = $_SESSION["utilisateur"];
 		$engine = new Engine;
 		$engine->assign("enseignant", $enseignant->getNom()." ".$enseignant->getPrenom());
 		$engine->render("ajouter-une-demande.html");
 
-		if(isset($_POST["demande"])){
+		if(isset($_POST["deposer"])){
 			if(!empty($_POST["objet"]) && !empty($_POST["date"])){
 				$objet = $_POST["objet"];
 				$message = $_POST["message"];
 				$date = $_POST["date"];
-				
+				$fichier = $_FILES["fichier"]["name"];
+
+				$demande = new Demande(null, $objet, $fichier, $utilisateur, $enseignant, null, null, null);
+				$demandeDAO = new DemandeDAO;
+				$demandeinsertion = $demandeDAO->insert($demande);
+				$latest_demande = $demandeDAO->get_latest($utilisateur);
+
+				if($demandeinsertion){
+					$rdv = new RDV(null, $latest_demande, $date, null);
+					$rdvDAO = new RDVDAO();
+
+					if($rdvDAO->insert($rdv)){
+						if($message != ""){
+							$message = new Message(null, $utilisateur, $latest_demande, $message, null);
+							$messageDAO = new MessageDAO;
+							$messageDAO->insert($message);
+						}else{
+							echo "Message est vide.";
+						}
+
+						if($fichier != ""){
+							$repertoire = "web/upload/".$utilisateur->getNom().$utilisateur->getPrenom().$utilisateur->getId()."/".$latest_demande->getId()."/";
+
+							if (!file_exists($repertoire)) {
+	    						mkdir($repertoire, 0777, true);
+							}
+
+							if (move_uploaded_file($_FILES["fichier"]["tmp_name"], $repertoire.$fichier)) {
+		        				header("Location: http://127.0.0.1/rendez_vous_web/accueil.php");
+		    				}
+						}else {
+							header("Location: http://127.0.0.1/rendez_vous_web/accueil.php");
+						}
+					}else{
+						echo "L'insertion d'un rendez-vous dans la base de donnees a echoue.";
+					}
+				}else{
+					echo "L'insertion de la demande a echoue.";
+				}
+			}else{
+				echo "Certains champs sont vide.";
 			}
 		}
 	}
@@ -136,7 +180,7 @@ class DefaultController{
             			<td>
             				<form method=\"POST\">
             					<input type=\"text\" name=\"id\" value=\"".$utilisateur->getId()."\" hidden=\"hidden\">
-            					<input type=\"submit\" name=\"ajouter\" class=\"btn btn-secondary\" value=\"Ajouter\">
+            					<input type=\"submit\" name=\"deposer\" class=\"btn btn-secondary\" value=\"Déposer\">
             				</form>
             			</td>
           			</tr>
@@ -146,8 +190,7 @@ class DefaultController{
 		$engine->assign("liste", $listedesenseignants);
 		$engine->render("liste-des-enseignants.html");
 
-		if(isset($_POST["ajouter"])){
-			//echo "La condition pour le bouton d'ajout fonctionne.";
+		if(isset($_POST["deposer"])){
 			session_start();
 			$utilisateurs = $utilisateurDAO->findBy("id", $_POST["id"]);
 			$_SESSION["enseignant"] = $utilisateurs[0];
@@ -156,13 +199,20 @@ class DefaultController{
 		}
 	}
 
-	public function liste_des_rendez_vous(){
+	public function liste_de_vos_rendez_vous(){
 		session_start();
 		$utilisateur = $_SESSION["utilisateur"];
 		$engine = new Engine();
 
 		$demandeDAO = new DemandeDAO;
-		$demandes = $demandeDAO->findBy("jeuneid", $utilisateur->getId());
+		$demandes = array();
+
+		if($utilisateur->getRole() == "Élève"){
+			$demandes = $demandeDAO->findBy("jeuneid", $utilisateur->getId());
+
+		}elseif ($utilisateur->getRole() == "Enseignant") {
+			$demandes = $demandeDAO->findBy("enseignantid", $utilisateur->getId());
+		}
 
 		$listedesdemandes = "";
 
@@ -178,25 +228,25 @@ class DefaultController{
 			$listedesdemandes .= 
 				"
 					<tr>
-            			<th>".$demande->getId()."</th>
-            			<td>".$demande->getObjet()."</td>
-            			<td>".$demande->getFichier()."</td>
-            			<td>".$demande->getEnseignant()->getNom()." ".$demande->getEnseignant()->getPrenom()."</td>
-            			<td>".$demande->getStatus()."</td>
-            			<td>".$confirmation."</td>
-            			<td>".$demande->getDateajout()."</td>
-            			<td>
-	            			<form method=\"POST\">
-	            				<input type=\"text\" name=\"id\" class=\"btn btn-secondary\" value=".$demande->getId()." hidden>
-	            				<input type=\"submit\" name=\"effacer\" class=\"btn btn-secondary\" value=\"Effacer\">
-	            			</form>
-            			</td>
-          			</tr>
+	            		<th>".$demande->getId()."</th>
+	            		<td>".$demande->getObjet()."</td>
+	            		<td><a href="."\"web/upload/".$utilisateur->getNom().$utilisateur->getPrenom().$utilisateur->getId()."/".$demande->getId()."/".$demande->getFichier()."\" download>".$demande->getFichier()."</a></td>
+	            		<td>".$demande->getEnseignant()->getNom()." ".$demande->getEnseignant()->getPrenom()."</td>
+	            		<td>".$demande->getStatus()."</td>
+	            		<td>".$confirmation."</td>
+	            		<td>".$demande->getDateajout()."</td>
+	            		<td>
+		            		<form method=\"POST\">
+		            			<input type=\"text\" name=\"id\" class=\"btn btn-secondary\" value=".$demande->getId()." hidden>
+		            			<input type=\"submit\" name=\"effacer\" class=\"btn btn-secondary\" value=\"Effacer\">
+		            		</form>
+	            		</td>
+	          		</tr>
 				";
 		}
 
 		$engine->assign("liste", $listedesdemandes);
-		$engine->render("liste-des-rendez-vous.html");
+		$engine->render("liste-de-vos-rendez-vous.html");
 
 		if(isset($_POST["effacer"])){
 			if(!empty($_POST["id"])){
@@ -212,7 +262,7 @@ class DefaultController{
 		}
 	}
 
-	public function modification_de_vos_informations(){
+	public function modifier_vos_informations(){
 		session_start();
 		$utilisateur = $_SESSION["utilisateur"];
 		$engine = new Engine();
@@ -222,7 +272,7 @@ class DefaultController{
 		$engine->assign("telephone", $utilisateur->getTelephone());
 		$engine->render("modification-de-vos-informations.html");
 
-		if(isset($_POST["modification"])){
+		if(isset($_POST["modifier"])){
 			if(!empty($_POST["nom"]) && !empty($_POST["prenom"]) && !empty($_POST["email"]) && !empty($_POST["telephone"])){
 				$nom = $_POST["nom"];
 				$prenom = $_POST["prenom"];

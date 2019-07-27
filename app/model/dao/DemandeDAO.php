@@ -7,7 +7,10 @@ class DemandeDAO{
 		$connect = new Connect();
 		$connection = $connect->connexion();
 
-		$query = $connection->prepare("DELETE FROM demande WHERE id = :id");
+		$query = $connection->prepare("
+			DELETE FROM message WHERE demandeId = :id; 
+			DELETE FROM demande WHERE id = :id"
+		);
 		$result = $query->execute(["id"=>$demande->getId()]);
 
 		$query = null;
@@ -141,6 +144,74 @@ class DemandeDAO{
 		$query = null;
 		$connection = null;	
 		return $demandes;
+	}
+
+	public function get_latest($utilisateur){
+		$connect = new Connect();
+		$connection = $connect->connexion();
+
+		$query = $connection->prepare("SELECT b.id AS 'demande-id', b.objet AS 'demande-objet', b.fichier AS 'demande-fichier', b.jeuneId AS 'demande-jeuneid', b.enseignantId AS 'demande-enseignantid', b.status AS 'demande-status', b.confirmation AS 'demande-confirmation', b.dateAjout AS 'demande-dateajout', a.id AS 'jeune-id', a.nom AS 'jeune-nom', a.prenom AS 'jeune-prenom', a.motdepasse AS 'jeune-motdepasse', a.role AS 'jeune-role', a.email AS 'jeune-email', a.telephone AS 'jeune-telephone', a.derniereConnexion AS 'jeune-derniereconnexion', a.dateAjout AS 'jeune-dateajout' , c.id  AS 'enseignant-id', c.nom AS 'enseignant-nom', c.prenom AS 'enseignant-prenom', c.motdepasse AS 'enseignant-motdepasse', c.role AS 'enseignant-role', c.email AS 'enseignant-email', c.telephone AS 'enseignant-telephone', c.derniereConnexion AS 'enseignant-derniereconnexion', c.dateAjout AS 'enseignant-dateajout' FROM demande b JOIN utilisateur a ON b.jeuneId=a.id JOIN utilisateur c ON b.enseignantId=c.id WHERE jeuneId = :id ORDER BY b.dateAjout DESC LIMIT 1");
+		$query->execute(["id"=>$utilisateur->getId()]);
+		$result = $query->fetch();
+
+		$jeune = new Utilisateur(
+			$result['jeune-id'],
+			$result['jeune-nom'],
+			$result['jeune-prenom'],
+			$result['jeune-role'],
+			$result['jeune-motdepasse'],
+			$result['jeune-telephone'],
+			$result['jeune-email'],
+			$result['jeune-derniereconnexion'],
+			$result['jeune-dateajout']);
+
+		$enseignant = new Utilisateur(
+			$result['enseignant-id'],
+			$result['enseignant-nom'],
+			$result['enseignant-prenom'],
+			$result['enseignant-role'],
+			$result['enseignant-motdepasse'],
+			$result['enseignant-telephone'],
+			$result['enseignant-email'],
+			$result['enseignant-derniereconnexion'],
+			$result['enseignant-dateajout']
+		);
+
+		$demande = new Demande(
+			$result["demande-id"], 
+			$result["demande-objet"], 
+			$result["demande-fichier"], 
+			$jeune,
+			$enseignant,
+			$result["demande-status"], 
+			$result["demande-confirmation"], 
+			$result["demande-dateajout"]
+		);
+
+		$query = null;
+		$connection = null;	
+		return $demande;
+	}
+
+	public function insert($demande){
+		$connect = new Connect();
+		$connection = $connect->connexion(); 
+		
+		$query = $connection->prepare("INSERT INTO demande(objet, fichier, jeuneId, enseignantId, status, confirmation, dateAjout) VALUES(:objet, :fichier, :jeuneId, :enseignantId, :status, :confirmation, NOW())");
+		$result = $query->execute(
+			[
+				"objet"=>$demande->getObjet(),
+				"fichier"=>$demande->getFichier(),
+				"jeuneId"=>$demande->getJeune()->getId(),
+				"enseignantId"=>$demande->getEnseignant()->getId(),
+				"status"=>"En attente",
+				"confirmation"=>0
+			]
+		);
+
+		$query = null;
+		$connection = null;	
+		return $result;
 	}
 }
 ?>

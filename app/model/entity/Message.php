@@ -6,16 +6,16 @@ class Message{
 	private $message;
 	private $dateAjout;
 
-	public function __construct($id, $utilisateurId, $demande, $message, $dateAjout){
+	public function __construct($id, $utilisateur, $demande, $message, $dateAjout){
 		$this->id = $id;
-		$this->utilisateurId = $utilisateurId;
+		$this->utilisateur = $utilisateur;
 		$this->demande = $demande;
 		$this->message = $message;
 		$this->dateAjout = $dateAjout;
 	}
 
 	public function getId(){return $this->id;}
-	public function getUtilisateurid(){return $this->utilisateurId;}
+	public function getUtilisateur(){return $this->utilisateur;}
 	public function getDemande(){return $this->demande;}
 	public function getMessage(){return $this->message;}
 	public function getDateajout(){return $this->dateAjout;}
