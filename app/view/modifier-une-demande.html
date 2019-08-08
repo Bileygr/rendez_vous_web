@@ -17,28 +17,29 @@
 
 			<div class="jumbotron">
 				<div class="header clearfix">
-					<h1 class="text-muted"><a href="liste-des-enseignants.php" class="btn btn-secondary">Retour</a> | Déposer une demande</h1>
+					<h1 class="text-muted"><a href="liste-de-vos-rendez-vous.php" class="btn btn-secondary">Retour</a> | Modifier une demande</h1>
 				</div>
 				
 				<form method="POST" enctype="multipart/form-data">
 					<div class="form-group">
 						<label for="objet">Objet</label>
-						<input type="text" class="form-control" name="objet" id="objet" placeholder="Objet" required autofocus>
-					</div>
-
-					<div class="form-group">
-						<label for="message">Méssage</label>
-    					<textarea class="form-control" name="message" id="message" rows="5" placeholder="Écrivez votre méssage..."></textarea>
+						<input type="text" class="form-control" name="objet" id="objet" placeholder="Objet" value="{{ objet }}" required autofocus>
 					</div>
 
 					<div class="form-group">
 						<label for="date">Date</label>
-						<input type="datetime-local" name="date" id="date" class="form-control">
+						<input type="datetime-local" name="date" id="date" class="form-control" value="{{ date }}">
+					</div>
+
+					<div class="form-group">
+						<label for="message">Méssage</label>
+    					<textarea class="form-control" name="message" id="message" rows="5" placeholder="Écrivez votre méssage...">{{ message }}</textarea>
 					</div>
 
 					<div class="form-group">
 					    <label for="fichier">Fichier</label>
-					    <input type="file" name="fichier" class="form-control-file" id="fichier">
+					    <input type="file" name="fichier" class="form-control-file" id="fichier"><br>
+					    <b><u>Fichier déja en ligne</u>: <a href="{{ chemin vers le fichier }}">{{ nom du fichier }}</a>
 					</div>
 
 					<br>
@@ -47,7 +48,7 @@
 						<b><u>Enseignant(e)</u>: {{ enseignant }}</b>
 					</p>
 
-					<input type="submit" name="deposer" class="btn btn-secondary" value="Déposer">
+					<input type="submit" name="modifier" class="btn btn-secondary" value="Modifier">
 				</form>
 			</div>
 

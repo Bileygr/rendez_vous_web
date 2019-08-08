@@ -8,9 +8,9 @@ class DemandeDAO{
 		$connection = $connect->connexion();
 
 		$query = $connection->prepare("
-			DELETE FROM message WHERE demandeId = :id; 
-			DELETE FROM demande WHERE id = :id"
-		);
+			DELETE FROM message WHERE demandeId = :id;	
+			DELETE FROM demande WHERE id = :id;
+		");
 		$result = $query->execute(["id"=>$demande->getId()]);
 
 		$query = null;
@@ -18,90 +18,56 @@ class DemandeDAO{
 		return $result;
 	}
 
-	public function findAll(){
-		$connect = new Connect();
-		$connection = $connect->connexion();
-
-		$query = $connection->prepare("SELECT b.id AS 'demande-id', b.objet AS 'demande-objet', b.fichier AS 'demande-fichier', b.jeuneId AS 'demande-jeuneid', b.enseignantId AS 'demande-enseignantid', b.status AS 'demande-status', b.confirmation AS 'demande-confirmation', b.dateAjout AS 'demande-dateajout', a.id AS 'jeune-id', a.nom AS 'jeune-nom', a.prenom AS 'jeune-prenom', a.motdepasse AS 'jeune-motdepasse', a.role AS 'jeune-role', a.email AS 'jeune-email', a.telephone AS 'jeune-telephone', a.derniereConnexion AS 'jeune-derniereconnexion', a.dateAjout AS 'jeune-dateajout' , c.id  AS 'enseignant-id', c.nom AS 'enseignant-nom', c.prenom AS 'enseignant-prenom', c.motdepasse AS 'enseignant-motdepasse', c.role AS 'enseignant-role', c.email AS 'enseignant-email', c.telephone AS 'enseignant-telephone', c.derniereConnexion AS 'enseignant-derniereconnexion', c.dateAjout AS 'enseignant-dateajout' FROM demande b JOIN utilisateur a ON b.jeuneId=a.id JOIN utilisateur c ON b.enseignantId=c.id");
-		$query->execute();
-
-		$demandes = array();
-		for($i=0; $demande=$query->fetch(); $i++){
-			$jeune = new Utilisateur(
-				$demande['jeune-id'],
-				$demande['jeune-nom'],
-				$demande['jeune-prenom'],
-				$demande['jeune-role'],
-				$demande['jeune-motdepasse'],
-				$demande['jeune-telephone'],
-				$demande['jeune-email'],
-				$demande['jeune-derniereconnexion'],
-				$demande['jeune-dateajout']
-			);
-
-			$enseignant = new Utilisateur(
-				$demande['enseignant-id'],
-				$demande['enseignant-nom'],
-				$demande['enseignant-prenom'],
-				$demande['enseignant-role'],
-				$demande['enseignant-motdepasse'],
-				$demande['enseignant-telephone'],
-				$demande['enseignant-email'],
-				$demande['enseignant-derniereconnexion'],
-				$demande['enseignant-dateajout']
-			);
-
-			$demandes[$i] = new Demande(
-				$demande['demande-id'],
-				$demande['demande-objet'],
-				$demande['demande-fichier'],
-				$jeune,
-				$enseignant,
-				$demande['demande-status'],
-				$demande['demnande-confirmation'],	
-				$demande['demande-dateajout']
-			);
-		}
-
-		$query = null;
-		$connection = null;	
-		return $demandes;
-	}
-
 	public function findBy($option, $value){
 		$connect = new Connect();
 		$connection = $connect->connexion(); 
 		$query;
 
-		$firstpartofquery = "SELECT b.id AS 'demande-id', b.objet AS 'demande-objet', b.fichier AS 'demande-fichier', b.jeuneId AS 'demande-jeuneid', b.enseignantId AS 'demande-enseignantid', b.status AS 'demande-status', b.confirmation AS 'demande-confirmation', b.dateAjout AS 'demande-dateajout', a.id AS 'jeune-id', a.nom AS 'jeune-nom', a.prenom AS 'jeune-prenom', a.motdepasse AS 'jeune-motdepasse', a.role AS 'jeune-role', a.email AS 'jeune-email', a.telephone AS 'jeune-telephone', a.derniereConnexion AS 'jeune-derniereconnexion', a.dateAjout AS 'jeune-dateajout' , c.id  AS 'enseignant-id', c.nom AS 'enseignant-nom', c.prenom AS 'enseignant-prenom', c.motdepasse AS 'enseignant-motdepasse', c.role AS 'enseignant-role', c.email AS 'enseignant-email', c.telephone AS 'enseignant-telephone', c.derniereConnexion AS 'enseignant-derniereconnexion', c.dateAjout AS 'enseignant-dateajout' FROM demande b JOIN utilisateur a ON b.jeuneId=a.id JOIN utilisateur c ON b.enseignantId=c.id";
+		$firstpartofquery = "SELECT a.id AS 'demande-id', a.objet AS 'demande-objet', a.date AS 'demande-date', a.fichier AS 'demande-fichier', a.jeuneId AS 'demande-jeuneid', a.enseignantId AS 'demande-enseignantid', a.status AS 'demande-status', a.confirmation AS 'demande-confirmation', a.dateAjout AS 'demande-dateajout', b.id AS 'jeune-id', b.nom AS 'jeune-nom', b.prenom AS 'jeune-prenom', b.motdepasse AS 'jeune-motdepasse', b.role AS 'jeune-role', b.email AS 'jeune-email', b.telephone AS 'jeune-telephone', b.derniereConnexion AS 'jeune-derniereconnexion', b.dateAjout AS 'jeune-dateajout' , c.id  AS 'enseignant-id', c.nom AS 'enseignant-nom', c.prenom AS 'enseignant-prenom', c.motdepasse AS 'enseignant-motdepasse', c.role AS 'enseignant-role', c.email AS 'enseignant-email', c.telephone AS 'enseignant-telephone', c.derniereConnexion AS 'enseignant-derniereconnexion', c.dateAjout AS 'enseignant-dateajout' FROM demande a JOIN utilisateur b ON a.jeuneId=b.id JOIN utilisateur c ON a.enseignantId=c.id";
 
 		switch($option){
+			case "":
+				$query = $connection->prepare($firstpartofquery);
+				$query->execute();
+				break;
+
 			case "id":
-				$query = $connection->prepare($firstpartofquery." WHERE b.id = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.id = :value");
+				$query->execute(["value" => $value]);
 				break;
 			case "objet":
-				$query = $connection->prepare($firstpartofquery." WHERE b.objet = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.objet = :value");
+				$query->execute(["value" => $value]);
 				break;
 			case "fichier":
-				$query = $connection->prepare($firstpartofquery." WHERE b.fichier = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.fichier = :value");
+				$query->execute(["value" => $value]);
 				break;
 			case "jeuneid":
-				$query = $connection->prepare($firstpartofquery." WHERE b.jeuneId = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.jeuneId = :value");
+				$query->execute(["value" => $value]);
 				break;
 			case "enseignantid":
-				$query = $connection->prepare($firstpartofquery." WHERE b.enseignantId = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.enseignantId = :value");
+				$query->execute(["value" => $value]);
 				break;
 			case "status":
-				$query = $connection->prepare($firstpartofquery." WHERE b.status = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.status = :value");
+				$query->execute(["value" => $value]);
 				break;
 			case "confirmation":
-				$query = $connection->prepare($firstpartofquery." WHERE b.confirmation = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.confirmation = :value");
+				$query->execute(["value" => $value]);
 				break;
 			case "dateajout":
-				$query = $connection->prepare($firstpartofquery." WHERE b.dateAjout = :value");
+				$query = $connection->prepare($firstpartofquery." WHERE a.dateAjout = :value");
+				$query->execute(["value" => $value]);
+				break;
+			case "latest":
+				$query = $connection->prepare($firstpartofquery." WHERE a.jeuneId = :value ORDER BY a.dateAjout DESC LIMIT 1");
+				$query->execute(["value" => $value]);
 				break;
 		}
-		$query->execute(array("value" => $value));
 
 		$demandes = array();
 		for($i=0; $demande=$query->fetch(); $i++){
@@ -132,6 +98,7 @@ class DemandeDAO{
 			$demandes[$i] = new Demande(
 				$demande['demande-id'],
 				$demande['demande-objet'],
+				$demande['demande-date'],
 				$demande['demande-fichier'],
 				$jeune,
 				$enseignant,
@@ -146,61 +113,15 @@ class DemandeDAO{
 		return $demandes;
 	}
 
-	public function get_latest($utilisateur){
-		$connect = new Connect();
-		$connection = $connect->connexion();
-
-		$query = $connection->prepare("SELECT b.id AS 'demande-id', b.objet AS 'demande-objet', b.fichier AS 'demande-fichier', b.jeuneId AS 'demande-jeuneid', b.enseignantId AS 'demande-enseignantid', b.status AS 'demande-status', b.confirmation AS 'demande-confirmation', b.dateAjout AS 'demande-dateajout', a.id AS 'jeune-id', a.nom AS 'jeune-nom', a.prenom AS 'jeune-prenom', a.motdepasse AS 'jeune-motdepasse', a.role AS 'jeune-role', a.email AS 'jeune-email', a.telephone AS 'jeune-telephone', a.derniereConnexion AS 'jeune-derniereconnexion', a.dateAjout AS 'jeune-dateajout' , c.id  AS 'enseignant-id', c.nom AS 'enseignant-nom', c.prenom AS 'enseignant-prenom', c.motdepasse AS 'enseignant-motdepasse', c.role AS 'enseignant-role', c.email AS 'enseignant-email', c.telephone AS 'enseignant-telephone', c.derniereConnexion AS 'enseignant-derniereconnexion', c.dateAjout AS 'enseignant-dateajout' FROM demande b JOIN utilisateur a ON b.jeuneId=a.id JOIN utilisateur c ON b.enseignantId=c.id WHERE jeuneId = :id ORDER BY b.dateAjout DESC LIMIT 1");
-		$query->execute(["id"=>$utilisateur->getId()]);
-		$result = $query->fetch();
-
-		$jeune = new Utilisateur(
-			$result['jeune-id'],
-			$result['jeune-nom'],
-			$result['jeune-prenom'],
-			$result['jeune-role'],
-			$result['jeune-motdepasse'],
-			$result['jeune-telephone'],
-			$result['jeune-email'],
-			$result['jeune-derniereconnexion'],
-			$result['jeune-dateajout']);
-
-		$enseignant = new Utilisateur(
-			$result['enseignant-id'],
-			$result['enseignant-nom'],
-			$result['enseignant-prenom'],
-			$result['enseignant-role'],
-			$result['enseignant-motdepasse'],
-			$result['enseignant-telephone'],
-			$result['enseignant-email'],
-			$result['enseignant-derniereconnexion'],
-			$result['enseignant-dateajout']
-		);
-
-		$demande = new Demande(
-			$result["demande-id"], 
-			$result["demande-objet"], 
-			$result["demande-fichier"], 
-			$jeune,
-			$enseignant,
-			$result["demande-status"], 
-			$result["demande-confirmation"], 
-			$result["demande-dateajout"]
-		);
-
-		$query = null;
-		$connection = null;	
-		return $demande;
-	}
-
 	public function insert($demande){
 		$connect = new Connect();
 		$connection = $connect->connexion(); 
 		
-		$query = $connection->prepare("INSERT INTO demande(objet, fichier, jeuneId, enseignantId, status, confirmation, dateAjout) VALUES(:objet, :fichier, :jeuneId, :enseignantId, :status, :confirmation, NOW())");
+		$query = $connection->prepare("INSERT INTO demande(objet, date, fichier, jeuneId, enseignantId, status, confirmation, dateAjout) VALUES(:objet, :date, :fichier, :jeuneId, :enseignantId, :status, :confirmation, NOW())");
 		$result = $query->execute(
 			[
 				"objet"=>$demande->getObjet(),
+				"date"=>$demande->getDate(),
 				"fichier"=>$demande->getFichier(),
 				"jeuneId"=>$demande->getJeune()->getId(),
 				"enseignantId"=>$demande->getEnseignant()->getId(),

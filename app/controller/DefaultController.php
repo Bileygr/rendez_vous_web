@@ -2,11 +2,9 @@
 require_once("app/Engine.php");
 require_once("app/model/dao/DemandeDAO.php");
 require_once("app/model/dao/MessageDAO.php");
-require_once("app/model/dao/RDVDAO.php");
 require_once("app/model/dao/UtilisateurDAO.php");
 require_once("app/model/entity/Demande.php");
 require_once("app/model/entity/Message.php");
-require_once("app/model/entity/RDV.php");
 require_once("app/model/entity/Utilisateur.php");
 
 class DefaultController{
@@ -42,39 +40,32 @@ class DefaultController{
 				$date = $_POST["date"];
 				$fichier = $_FILES["fichier"]["name"];
 
-				$demande = new Demande(null, $objet, $fichier, $utilisateur, $enseignant, null, null, null);
+				$demande = new Demande(null, $objet, $date, $fichier, $utilisateur, $enseignant, null, null, null);
 				$demandeDAO = new DemandeDAO;
 				$demandeinsertion = $demandeDAO->insert($demande);
-				$latest_demande = $demandeDAO->get_latest($utilisateur);
+				$latest_demande = $demandeDAO->findBy("latest", $utilisateur->getId());
 
 				if($demandeinsertion){
-					$rdv = new RDV(null, $latest_demande, $date, null);
-					$rdvDAO = new RDVDAO();
-
-					if($rdvDAO->insert($rdv)){
-						if($message != ""){
-							$message = new Message(null, $utilisateur, $latest_demande, $message, null);
-							$messageDAO = new MessageDAO;
-							$messageDAO->insert($message);
-						}else{
-							echo "Message est vide.";
-						}
-
-						if($fichier != ""){
-							$repertoire = "web/upload/".$utilisateur->getNom().$utilisateur->getPrenom().$utilisateur->getId()."/".$latest_demande->getId()."/";
-
-							if (!file_exists($repertoire)) {
-	    						mkdir($repertoire, 0777, true);
-							}
-
-							if (move_uploaded_file($_FILES["fichier"]["tmp_name"], $repertoire.$fichier)) {
-		        				header("Location: http://127.0.0.1/rendez_vous_web/accueil.php");
-		    				}
-						}else {
-							header("Location: http://127.0.0.1/rendez_vous_web/accueil.php");
-						}
+					if($message != ""){
+						$message = new Message(null, $utilisateur, $latest_demande[0], $message, null);
+						$messageDAO = new MessageDAO;
+						$messageDAO->insert($message);
 					}else{
-						echo "L'insertion d'un rendez-vous dans la base de donnees a echoue.";
+						echo "Message est vide.";
+					}
+
+					if($fichier != ""){
+						$repertoire = "web/upload/".$utilisateur->getNom().$utilisateur->getPrenom().$utilisateur->getId()."/".$latest_demande[0]->getId()."/";
+
+						if(!file_exists($repertoire)) {
+	    					mkdir($repertoire, 0777, true);
+						}
+
+						if(move_uploaded_file($_FILES["fichier"]["tmp_name"], $repertoire.$fichier)) {
+		        			header("Location: http://127.0.0.1/rendez_vous_web/accueil.php");
+		    			}
+					}else {
+						header("Location: http://127.0.0.1/rendez_vous_web/accueil.php");
 					}
 				}else{
 					echo "L'insertion de la demande a echoue.";
@@ -202,6 +193,7 @@ class DefaultController{
 	public function liste_de_vos_rendez_vous(){
 		session_start();
 		$utilisateur = $_SESSION["utilisateur"];
+		$demandeDAO = new DemandeDAO;
 		$engine = new Engine();
 
 		$demandeDAO = new DemandeDAO;
@@ -230,17 +222,18 @@ class DefaultController{
 					<tr>
 	            		<th>".$demande->getId()."</th>
 	            		<td>".$demande->getObjet()."</td>
+	            		<td><input type=\"datetime-local\" name=\"date\" id=\"date\" class=\"form-control\" value=\"".$demande->getDate()."\"></td>
 	            		<td><a href="."\"web/upload/".$utilisateur->getNom().$utilisateur->getPrenom().$utilisateur->getId()."/".$demande->getId()."/".$demande->getFichier()."\" download>".$demande->getFichier()."</a></td>
 	            		<td>".$demande->getEnseignant()->getNom()." ".$demande->getEnseignant()->getPrenom()."</td>
 	            		<td>".$demande->getStatus()."</td>
 	            		<td>".$confirmation."</td>
 	            		<td>".$demande->getDateajout()."</td>
-	            		<td>
-		            		<form method=\"POST\">
-		            			<input type=\"text\" name=\"id\" class=\"btn btn-secondary\" value=".$demande->getId()." hidden>
-		            			<input type=\"submit\" name=\"effacer\" class=\"btn btn-secondary\" value=\"Effacer\">
-		            		</form>
-	            		</td>
+	            		<form method=\"POST\">
+		            		<input type=\"text\" name=\"id\" class=\"btn btn-secondary\" value=".$demande->getId()." hidden>
+		            		<td><input type=\"submit\" name=\"modifier\" class=\"btn btn-secondary\" value=\"Modifier\"></td>
+		            		<td><input type=\"submit\" name=\"messages\" class=\"btn btn-secondary\" value=\"Messages\"></td>
+		            		<td><input type=\"submit\" name=\"effacer\" class=\"btn btn-danger\" value=\"Effacer\"></td>
+		            	</form>
 	          		</tr>
 				";
 		}
@@ -248,18 +241,34 @@ class DefaultController{
 		$engine->assign("liste", $listedesdemandes);
 		$engine->render("liste-de-vos-rendez-vous.html");
 
+		if(isset($_POST["modifier"])){
+			$id = $_POST["id"];
+			$demandes = $demandes->findBy("enseignantid", $id);
+
+			$_SESSION["demande"] = $demandes[0];
+			header("Location: http://127.0.0.1/rendez_vous_web/modifier-une-demande.php");
+		}
+
 		if(isset($_POST["effacer"])){
 			if(!empty($_POST["id"])){
 				$id = $_POST["id"];
-
-				$demandeDAO = new DemandeDAO;
 				$demandes = $demandeDAO->findBy("id", $id);
 				
 				if($demandeDAO->delete($demandes[0])){
-					header("Location: http://127.0.0.1/rendez_vous_web/liste-des-rendez-vous.php");
+					header("Location: http://127.0.0.1/rendez_vous_web/liste-de-vos-rendez-vous.php");
 				}
 			}
 		}
+	}
+
+	public function modifier_une_demande(){
+		session_start();
+		$demande = $_SESSION["demande"];
+		$utilisateur = $_SESSION["utilisateur"];
+		$engine = new Engine();
+		$engine->assign("objet", $demande->getObjet());
+		$engine->assign("message", $demande->getObjet());
+		$engine->render("modifier-une-demande.html");
 	}
 
 	public function modifier_vos_informations(){
