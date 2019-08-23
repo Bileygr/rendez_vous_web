@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'rendez_vous_web',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
