@@ -56,7 +56,7 @@ ROOT_URLCONF = 'rendez_vous_web.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['rendez_vous_web/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
