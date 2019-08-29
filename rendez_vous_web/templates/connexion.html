@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang='fr'>
+    <head>
+        <title>Rendez-vous Web App | Connexion</title>
+    </head>
+
+    <body>
+        <h1>Rendez-vous Web App | Connexion</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" name="inscription" value="Inscription">
+        </form>
+    </body>
+</html>

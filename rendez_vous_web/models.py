@@ -3,17 +3,18 @@ from django.contrib.auth.models import User
 
 class Utilisateur(models.Model):
     ROLES = (
-        ('A', 'Enseignant'),
-        ('B', 'Elève'),
+        ('enseignant', 'Enseignant'),
+        ('élève', 'Élève'),
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=1, choices=ROLES)
+    telephone = models.CharField(max_length=10, null=True)
+    role = models.CharField(max_length=10, choices=ROLES)
 
 class Rendez_vous(models.Model):
     STATUSES = (
-        ('A', 'En attente'),
-        ('B', 'Accepté'),
-        ('C', 'Refusé'),
+        ('en_attente', 'En attente'),
+        ('accepté', 'Accepté'),
+        ('refusé', 'Refusé'),
     )
     objet = models.CharField(max_length=250)
     enseignant = models.ForeignKey(Utilisateur, related_name='+', on_delete=models.PROTECT)
