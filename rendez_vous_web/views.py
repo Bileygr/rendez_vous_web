@@ -1,11 +1,10 @@
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from rendez_vous_web.forms import FormulaireDeConnexionUtilisateur
-from rendez_vous_web.forms import FormulaireDeCreationUtilisateur
-from rendez_vous_web.models import Utilisateur
+from rendez_vous_web.forms import *
+from rendez_vous_web.models import *
 
 def accueil(request):
     for key, value in request.session.items():
@@ -20,27 +19,20 @@ def connexion(request):
             email = form.cleaned_data['email']
             mot_de_passe = form.cleaned_data['mot_de_passe']
 
-            user = User.objects.get(email=email)
-            validation_du_mot_de_passe = check_password(mot_de_passe, user.password)
+            user = authenticate(username=email, password=mot_de_passe)
 
-            if validation_du_mot_de_passe:
-                utilisateur = {
-                    'id': user.id,
-                    'nom': user.last_name,
-                    'prénom': user.first_name,
-                    'mot_de_passe': user.password,
-                    'role': user.utilisateur.role,
-                    'téléphone': user.utilisateur.telephone,
-                    'email': user.email,
-                    'date_ajout': str(user.date_joined)
-                }
-                request.session['utilisateur'] = utilisateur
+            if user is not None:
+                login(request, user)
                 return redirect('accueil')
             else:
                 return redirect('connexion')
     else:
         form = FormulaireDeConnexionUtilisateur()
     return render(request, 'connexion.html', {'form': form})
+
+def deconnexion(request):
+    logout(request)
+    return redirect('accueil')
 
 def inscription(request):
     if request.method == 'POST':
