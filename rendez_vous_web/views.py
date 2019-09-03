@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from rendez_vous_web.forms import *
-from rendez_vous_web.models import *
+from rendez_vous_web.forms import FormulaireDeConnexionUtilisateur, FormulaireDeCreationUtilisateur
+from rendez_vous_web.models import Utilisateur, Rendez_vous, Message
 
 def accueil(request):
     for key, value in request.session.items():
@@ -57,3 +57,6 @@ def inscription(request):
     else:
         form = FormulaireDeCreationUtilisateur()
     return render(request, 'inscription.html', {'form': form})
+
+def liste_des_enseignants(request):
+    return render(request, 'liste-des-enseignants.html')

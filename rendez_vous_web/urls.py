@@ -23,5 +23,6 @@ urlpatterns = [
     path('connexion', views.connexion, name='connexion'),
     path('deconnexion', views.deconnexion, name='deconnexion'),
     path('inscription', views.inscription, name='inscription'),
+    path('liste-des-enseignants', views.liste_des_enseignants, name='liste_des_enseignants'),
     path('admin/', admin.site.urls),
 ]

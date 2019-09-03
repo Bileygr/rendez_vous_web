@@ -5,6 +5,10 @@
     </head>
     <body>
         <h1>Rendez-vous web app | Accueil</h1>
+        {% if user.is_authenticated %}
+            <h2>Bonjour {{ user.last_name }} {{ user.first_name }}</h2>
+            <a href="{% url 'liste_des_enseignants' %}">Liste des enseignants</a>
+        {% endif %}
         <a href="{% url 'connexion' %}">Connexion</a>
         <a href="{% url 'inscription' %}">Inscription</a>
         {% if user.is_authenticated %}
