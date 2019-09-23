@@ -5,6 +5,23 @@
     </head>
     <body>
         <h1>Rendez-vous web app | Liste des enseignants</h1>
-        
+        <table style="width:100%">
+            <tr align="left">
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+            </tr>
+            {% for enseignant in enseignants %}
+                <tr>
+                    <td>{{ enseignant.id}}</td>
+                    <td>{{ enseignant.last_name}}</td>
+                    <td>{{ enseignant.first_name}}</td>
+                    <td>{{ enseignant.utilisateur.telephone}}</td>
+                    <td>{{ enseignant.email}}</td>
+                </tr>
+            {% endfor %}
+          </table>
     </body>
 </html>

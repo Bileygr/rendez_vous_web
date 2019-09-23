@@ -59,4 +59,5 @@ def inscription(request):
     return render(request, 'inscription.html', {'form': form})
 
 def liste_des_enseignants(request):
-    return render(request, 'liste-des-enseignants.html')
+    enseignants = User.objects.filter(utilisateur__role='Enseignant')
+    return render(request, 'liste-des-enseignants.html', {"enseignants": enseignants})
