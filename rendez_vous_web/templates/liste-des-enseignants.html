@@ -5,6 +5,7 @@
     </head>
     <body>
         <h1>Rendez-vous web app | Liste des enseignants</h1>
+        <a href="{% url 'accueil' %}">Accueil</a>
         <table style="width:100%">
             <tr align="left">
                 <th>ID</th>
@@ -20,6 +21,12 @@
                     <td>{{ enseignant.first_name}}</td>
                     <td>{{ enseignant.utilisateur.telephone}}</td>
                     <td>{{ enseignant.email}}</td>
+                    <td>
+                        <form method="POST">
+                            <input type="hidden" name="id" value="{{ enseignant.id }}">
+                            <input type="submit" name="rendez-vous" value="RDV">
+                        </form>
+                    </td>        
                 </tr>
             {% endfor %}
           </table>

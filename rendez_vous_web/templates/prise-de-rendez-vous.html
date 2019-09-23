@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>Rendez-vous web app | Prise de rendez-vous</title>
+	</head>
+
+	<body>
+        <h1>Rendez-vous web app | Prise de rendez-vous</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" name="prise_de_rendez_vous" value="Prise du rendez-vous">
+        </form>
+	</body>
+</html>
