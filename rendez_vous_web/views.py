@@ -75,7 +75,16 @@ def prise_de_rendez_vous(request):
     enseignant_id = request.session['enseignant_id']
     enseignant = User.objects.get(id=enseignant_id)
     if request.method == 'POST':
-        form = FormulaireDePriseDeRendezVous(request.POST)
+        form = FormulaireDePriseDeRendezVous(request.POST, request.FILES)
+        if form.is_valid():
+            objet = form.cleaned_data['objet']
+            eleve = request.user.Utilisateur.id
+            fichier = form.cleaned_data['fichier']
+            message = form.cleaned_datae['message']
+            date_du_rdv = form.cleaned_data['date_du_rdv']
+            status = 'en_attente'
+            form.save()
+            return redirect('accueil')
     else:
         form = FormulaireDePriseDeRendezVous(request.POST)
     return render(request, 'prise-de-rendez-vous.html', {'enseignant': enseignant, 'form': form})
