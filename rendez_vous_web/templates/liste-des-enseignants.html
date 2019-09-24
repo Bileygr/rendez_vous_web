@@ -23,6 +23,7 @@
                     <td>{{ enseignant.email}}</td>
                     <td>
                         <form method="POST">
+                            {% csrf_token %}
                             <input type="hidden" name="id" value="{{ enseignant.id }}">
                             <input type="submit" name="rendez-vous" value="RDV">
                         </form>

@@ -22,3 +22,6 @@ class FormulaireDePriseDeRendezVous(forms.Form):
     date_du_rdv = forms.CharField(widget=forms.TextInput, label='Prénom', max_length=100)
     message = forms.CharField(widget=forms.PasswordInput, label="Mot de passe")
     fichier = forms.EmailField(widget=forms.TextInput, label="Email")
+
+class FormulaireObtentionIDEnseignant(forms.Form):
+    id = forms.CharField(widget=forms.TextInput, label='id', max_length=100)
