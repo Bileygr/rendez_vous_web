@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from rendez_vous_web.forms import FormulaireDeConnexionUtilisateur, FormulaireDeCreationUtilisateur, FormulaireDePriseDeRendezVous
+from rendez_vous_web.forms import FormulaireDeConnexionUtilisateur, FormulaireDeCreationUtilisateur, FormulaireDePriseDeRendezVous, FormulaireObtentionIDEnseignant
 from rendez_vous_web.models import Utilisateur, Rendez_vous, Message
 
 def accueil(request):
@@ -60,11 +60,22 @@ def inscription(request):
 
 def liste_des_enseignants(request):
     enseignants = User.objects.filter(utilisateur__role='Enseignant')
-    return render(request, 'liste-des-enseignants.html', {"enseignants": enseignants})
+    if request.method == 'POST':
+        form = FormulaireObtentionIDEnseignant(request.POST)
+
+        if form.is_valid():
+            id = form.cleaned_data['id']
+            request.session['enseignant_id'] = id
+            return redirect('prise_de_rendez_vous')
+    else:
+        form = FormulaireObtentionIDEnseignant(request.POST)
+    return render(request, 'liste-des-enseignants.html', {'enseignants': enseignants, 'form': form})
 
 def prise_de_rendez_vous(request):
+    enseignant_id = request.session['enseignant_id']
+    enseignant = User.objects.get(id=enseignant_id)
     if request.method == 'POST':
         form = FormulaireDePriseDeRendezVous(request.POST)
     else:
         form = FormulaireDePriseDeRendezVous(request.POST)
-    return render(request, 'prise-de-rendez-vous.html', {'form': form})
+    return render(request, 'prise-de-rendez-vous.html', {'enseignant': enseignant, 'form': form})
