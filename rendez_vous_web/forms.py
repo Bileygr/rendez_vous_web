@@ -23,5 +23,5 @@ class FormulaireDePriseDeRendezVous(forms.Form):
     message = forms.CharField(widget=forms.Textarea, label="Message")
     fichier = forms.FileField(required=False)
 
-class FormulaireObtentionIDEnseignant(forms.Form):
+class FormulaireObtentionDesID(forms.Form):
     id = forms.CharField(widget=forms.TextInput, label='id', max_length=100)

@@ -25,6 +25,7 @@ urlpatterns = [
     path('deconnexion', views.deconnexion, name='deconnexion'),
     path('inscription', views.inscription, name='inscription'),
     path('liste-des-enseignants', views.liste_des_enseignants, name='liste_des_enseignants'),
+    path('modifier-un-rendez-vous', views.modifier_un_rendez_vous, name='modifier_un_rendez_vous'),
     path('prise-de-rendez-vous', views.prise_de_rendez_vous, name='prise_de_rendez_vous'),
     path('vos-rendez-vous', views.vos_rendez_vous, name='vos_rendez_vous'),
     path('admin/', admin.site.urls),

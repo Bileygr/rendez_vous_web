@@ -8,7 +8,7 @@
     <body>
         <h1>Rendez-vous web app | Vos rendez-vous</h1>
         <a href="{% url 'accueil' %}">Accueil</a>
-        <table style="width:100%">
+        <table style="width:100%" id='table'>
             <tr align="left">
                 <th>ID</th>
                 <th>Professeur</th>
@@ -32,9 +32,30 @@
                     {% endif %}
                     <td>{{ rendez_vous.status }}</td>   
                     <td>{{ rendez_vous.date_du_rdv }}</td> 
-                    <td><input type='submit' value='Modifier'> <input type='submit' value='Supprimer'></td>   
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type='hidden' name='id' value='{{ rendez_vous.id }}'>
+                            <input type='submit' name='modifier' value='Modifier'> 
+                            <input type='submit' name='supprimer' id='supprimer' value='Supprimer'> 
+                        </form>
+                    </td>  
                 </tr>
             {% endfor %}
-          </table>
+        </table>
+
+        <script type="text/javascript">
+            $('#supprimer').click(function(evt){
+              evt.preventDefault();
+              $.ajax({
+                  synch: 'true',
+                  type: 'GET',
+                  url: '{% url 'vos_rendez_vous' %}',
+                  success: function(data){
+                      $('#table').html(data);
+                  }
+              });
+            }
+        </script>
     </body>
 </html>
