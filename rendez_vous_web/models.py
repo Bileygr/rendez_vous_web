@@ -17,12 +17,12 @@ class Rendez_vous(models.Model):
         ('refusé', 'Refusé'),
     )
     objet = models.CharField(max_length=250)
-    enseignant = models.ForeignKey(Utilisateur, related_name='+', on_delete=models.PROTECT)
-    eleve = models.ForeignKey(Utilisateur, related_name='+', on_delete=models.PROTECT)
+    enseignant = models.ForeignKey(User, related_name='+', on_delete=models.PROTECT)
+    eleve = models.ForeignKey(User, related_name='+', on_delete=models.PROTECT)
     fichier = models.FileField(upload_to='uploads/')
     message = models.TextField()
     date_du_rdv = models.DateTimeField(auto_now=False)
-    status = models.CharField(max_length=1, choices=STATUSES)
+    status = models.CharField(max_length=50, choices=STATUSES)
     dateajout = models.DateTimeField(auto_now=True)
 
 class Message(models.Model):

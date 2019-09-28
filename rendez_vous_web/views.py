@@ -72,19 +72,17 @@ def liste_des_enseignants(request):
     return render(request, 'liste-des-enseignants.html', {'enseignants': enseignants, 'form': form})
 
 def prise_de_rendez_vous(request):
-    enseignant_id = request.session['enseignant_id']
-    enseignant = User.objects.get(id=enseignant_id)
+    enseignant = User.objects.get(id=request.session['enseignant_id'])
     if request.method == 'POST':
         form = FormulaireDePriseDeRendezVous(request.POST, request.FILES)
         if form.is_valid():
-            objet = form.cleaned_data['objet']
-            eleve = request.user.Utilisateur.id
-            fichier = form.cleaned_data['fichier']
-            message = form.cleaned_datae['message']
-            date_du_rdv = form.cleaned_data['date_du_rdv']
-            status = 'en_attente'
-            form.save()
+            rdv = Rendez_vous(objet=form.cleaned_data['objet'], enseignant=enseignant, eleve=request.user, fichier=request.FILES['fichier'], message=form.cleaned_data['message'], date_du_rdv=form.cleaned_data['date_du_rdv'], status='en_attente')
+            rdv.save()
             return redirect('accueil')
     else:
-        form = FormulaireDePriseDeRendezVous(request.POST)
+        form = FormulaireDePriseDeRendezVous()
     return render(request, 'prise-de-rendez-vous.html', {'enseignant': enseignant, 'form': form})
+
+def vos_rendez_vous(request):
+    les_rendez_vous = Rendez_vous.objects.filter(eleve=request.user.id)
+    return render(request, 'vos-rendez-vous.html', {'les_rendez_vous': les_rendez_vous})

@@ -21,7 +21,7 @@ class FormulaireDePriseDeRendezVous(forms.Form):
     objet = forms.CharField(widget=forms.TextInput, label='Objet', max_length=100)
     date_du_rdv = forms.DateTimeField(input_formats=['%Y-%m-%d %H:%M:%S'],widget=forms.DateTimeInput)
     message = forms.CharField(widget=forms.Textarea, label="Message")
-    fichier = forms.FileField(allow_empty_file=True)
+    fichier = forms.FileField(required=False)
 
 class FormulaireObtentionIDEnseignant(forms.Form):
     id = forms.CharField(widget=forms.TextInput, label='id', max_length=100)

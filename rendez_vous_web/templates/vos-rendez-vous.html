@@ -1,0 +1,40 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Rendez-vous web app | Vos rendez-vous</title>
+    </head>
+    <body>
+        <h1>Rendez-vous web app | Vos rendez-vous</h1>
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <table style="width:100%">
+            <tr align="left">
+                <th>ID</th>
+                <th>Professeur</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Fichier partagé</th>
+                <th>Status</th>
+                <th>Date du rendez-vous</th>
+                <th>Actions</th>
+            </tr>
+            {% for rendez_vous in les_rendez_vous %}
+                <tr>
+                    <td>{{ rendez_vous.id }}</td>
+                    <td>{{ rendez_vous.enseignant.last_name }} {{ rendez_vous.enseignant.first_name }}</td>
+                    <td>{{ rendez_vous.enseignant.utilisateur.telephone }}</td>
+                    <td>{{ rendez_vous.enseignant.email }}</td> 
+                    {% if rendez_vous.fichier != ""  %} 
+                        <td><a href='{% static "" %}{{ rendez_vous.fichier }}' download>Télécharger</a></td>   
+                    {% else %}
+                        <td>Aucun fichier</td>
+                    {% endif %}
+                    <td>{{ rendez_vous.status }}</td>   
+                    <td>{{ rendez_vous.date_du_rdv }}</td> 
+                    <td><input type='submit' value='Modifier'> <input type='submit' value='Supprimer'></td>   
+                </tr>
+            {% endfor %}
+          </table>
+    </body>
+</html>
