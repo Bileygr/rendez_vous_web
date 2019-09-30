@@ -9,6 +9,7 @@
             <h2>Bonjour {{ user.last_name }} {{ user.first_name }}</h2>
             <a href="{% url 'liste_des_enseignants' %}">Liste des enseignants</a>
             <a href="{% url 'vos_rendez_vous' %}">Vos rendez-vous</a>
+            <a href="{% url 'modifier_vos_informations' %}">Modifier vos informations</a>
             <a href="{% url 'deconnexion' %}">Déconnexion</a>
         {% else %}
             <a href="{% url 'connexion' %}">Connexion</a>

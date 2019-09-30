@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>Rendez-vous web app | Modifier vos informations</title>
+	</head>
+
+	<body>
+        <h1>Rendez-vous web app | Modifier vos informations</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" name="modifier" value="Modifier">
+        </form>
+	</body>
+</html>

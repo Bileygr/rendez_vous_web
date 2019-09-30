@@ -69,6 +69,16 @@ def modifier_un_rendez_vous(request):
     return render(request, 'modifier-un-rendez-vous.html', {'form': FormulaireDePriseDeRendezVous(initial={'objet': rendez_vous.objet, 'date_du_rdv': rendez_vous.date_du_rdv,
     'message': rendez_vous.message})})
 
+def modifier_vos_informations(request):
+    user = User.objects.filter(utilisateur__user=request.user.id)
+    if request.method == 'POST':
+        form = FormulaireDeCreationUtilisateur(request.POST)
+        if form.is_valid():
+            nom = form.cleaned_data['nom']
+    else:
+        form = FormulaireDeCreationUtilisateur()
+    return render(request, 'modifier-vos-informations.html', {'form': FormulaireDeCreationUtilisateur(initial={'nom': user.last_name, 'prenom': user.first_name, 'email': user.email, 'telephone': user.Utilisateur.telephone, 'role': user.Utilisateur.role})})
+
 def prise_de_rendez_vous(request):
     enseignant = User.objects.get(id=request.session['enseignant_id'])
     if request.method == 'POST':
