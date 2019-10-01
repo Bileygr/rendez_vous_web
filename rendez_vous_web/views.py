@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -70,14 +71,26 @@ def modifier_un_rendez_vous(request):
     'message': rendez_vous.message})})
 
 def modifier_vos_informations(request):
-    user = User.objects.filter(utilisateur__user=request.user.id)
+    user = User.objects.get(id=request.user.id)
+    utilisateur = Utilisateur.objects.get(user_id=user.id)
     if request.method == 'POST':
         form = FormulaireDeCreationUtilisateur(request.POST)
         if form.is_valid():
-            nom = form.cleaned_data['nom']
+            if check_password(form.cleaned_data['mot_de_passe'], user.password) == True:
+                nom = form.cleaned_data['nom']
+                prenom = form.cleaned_data['prenom']
+                email = form.cleaned_data['email']
+                telephone = form.cleaned_data['telephone']
+                role = form.cleaned_data['role']
+
+                user.update(last_name=nom, first_name=prenom, username=email, email=email)
+                utilisateur.update(telephone=telephone, role=role)
+                return redirect('modifier-vos-informations')
+            else:
+                return redirect('modifier-vos-informations')
     else:
         form = FormulaireDeCreationUtilisateur()
-    return render(request, 'modifier-vos-informations.html', {'form': FormulaireDeCreationUtilisateur(initial={'nom': user.last_name, 'prenom': user.first_name, 'email': user.email, 'telephone': user.Utilisateur.telephone, 'role': user.Utilisateur.role})})
+    return render(request, 'modifier-vos-informations.html', {'form': FormulaireDeCreationUtilisateur(initial={'nom': user.last_name, 'prenom': user.first_name, 'email': user.email, 'telephone': utilisateur.telephone, 'role': utilisateur.role})})
 
 def prise_de_rendez_vous(request):
     enseignant = User.objects.get(id=request.session['enseignant_id'])
