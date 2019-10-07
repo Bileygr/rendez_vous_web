@@ -1,4 +1,35 @@
 from django import forms
+from django.contrib.auth.models import User
+from django.forms import ModelForm
+from rendez_vous_web.models import Creneau
+from rendez_vous_web.models import Message
+from rendez_vous_web.models import Rendez_vous
+from rendez_vous_web.models import Utilisateur
+
+class FormulaireCreneau(ModelForm):
+    class Meta:
+        model = Creneau
+        fields = ['rendez_vous', 'date', 'selection']
+
+class FormulaireMessage(ModelForm):
+    class Meta:
+        model = Message
+        fields = ['rendez_vous', 'utilisateur', 'message']
+
+class FormulaireRendez_vous(ModelForm):
+    class Meta:
+        model = Rendez_vous
+        fields = ['objet', 'enseignant', 'eleve', 'fichier', 'message', 'message_annulation', 'confirmation_enseignant', 'confirmation_eleve', 'signalement']
+
+class FormulaireUser(ModelForm):
+    class Meta:
+        model = User
+        fields = []
+
+class FormulaireUtilisateur(ModelForm):
+    class Meta:
+        model = Utilisateur
+        fields = ['user', 'telephone', 'role']
 
 CHOIX_DU_ROLE = [
     ('enseignant', 'Enseignant'),

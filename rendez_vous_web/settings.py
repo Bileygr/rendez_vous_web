@@ -146,7 +146,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 
 # Optional SMTP authentication information for EMAIL_HOST.
-EMAIL_HOST_USER = 'chesirkeirendezvousapp@gmail.com'
+EMAIL_HOST_USER = 'chesirkeirendezvousappmailer@gmail.com'
 with open('rendez_vous_web/config/email_password.txt') as i:
     EMAIL_HOST_PASSWORD = i.read().strip()
 EMAIL_USE_TLS = True

@@ -21,10 +21,10 @@ class Rendez_vous(models.Model):
     eleve = models.ForeignKey(User, related_name='+', on_delete=models.PROTECT)
     fichier = models.FileField(upload_to='uploads/')
     message = models.TextField()
-    message_annulation = models.TextField()
+    message_annulation = models.TextField(null=True)
     confirmation_enseignant = models.CharField(max_length=50, choices=STATUSES, default=STATUSES[0][0])
-    confirmation_jeune = models.CharField(max_length=50, choices=STATUSES, default=STATUSES[0][0])
-    signalement = models.BooleanField()
+    confirmation_eleve = models.CharField(max_length=50, choices=STATUSES, default=STATUSES[0][0])
+    signalement = models.BooleanField(default=False)
     dateajout = models.DateTimeField(auto_now=True)
 
 class Creneau(models.Model):
@@ -34,7 +34,7 @@ class Creneau(models.Model):
     dateajout = models.DateTimeField(auto_now=True)
 
 class Message(models.Model):
-    rendez_vous = models.ForeignKey(Rendez_vous, related_name='+', on_delete=models.PROTECT)
-    utilisateur = models.ForeignKey(Utilisateur, related_name='+', on_delete=models.PROTECT)
+    rendez_vous = models.ForeignKey(Rendez_vous, related_name='+', on_delete=models.CASCADE)
+    utilisateur = models.ForeignKey(Utilisateur, related_name='+', on_delete=models.CASCADE)
     message = models.TextField()
     dateajout = models.DateTimeField(auto_now=True)

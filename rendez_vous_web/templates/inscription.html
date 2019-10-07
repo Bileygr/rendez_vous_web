@@ -8,7 +8,9 @@
         <h1>Rendez-vous web app | Inscription</h1>
         <form method="POST">
             {% csrf_token %}
-            {{ form }}
+            {{ form.user.last_name }}
+            {{ form.telephone }}
+            {{ form.role }}
             <input type="submit" name="inscription" value="Inscription">
         </form>
 	</body>

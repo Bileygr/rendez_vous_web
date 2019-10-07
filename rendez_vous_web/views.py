@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from rendez_vous_web.forms import FormulaireUtilisateur
 from rendez_vous_web.forms import FormulaireDeConnexionUtilisateur
 from rendez_vous_web.forms import FormulaireDeCreationUtilisateur 
 from rendez_vous_web.forms import FormulaireDePriseDeRendezVous
@@ -23,9 +24,7 @@ def connexion(request):
     if request.method == 'POST':
         form = FormulaireDeConnexionUtilisateur(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
-            mot_de_passe = form.cleaned_data['mot_de_passe']
-            user = authenticate(username=email, password=mot_de_passe)
+            user = authenticate(username=form.cleaned_data['email'], password=form.cleaned_data['mot_de_passe'])
             if user is not None:
                 login(request, user)
                 return redirect('accueil')
@@ -41,7 +40,7 @@ def deconnexion(request):
 
 def inscription(request):
     if request.method == 'POST':
-        form = FormulaireDeCreationUtilisateur(request.POST)
+        form = FormulaireUtilisateur(request.POST)
         if form.is_valid():
             user = User.objects.create_user(form.cleaned_data['email'], form.cleaned_data['email'], form.cleaned_data['mot_de_passe'])
             user.last_name = form.cleaned_data['nom']
@@ -52,8 +51,8 @@ def inscription(request):
             utilisateur.save()
             return redirect('connexion')
     else:
-        form = FormulaireDeCreationUtilisateur()
-    return render(request, 'inscription.html', {'form': form})
+        form = FormulaireUtilisateur()
+    return render(request, 'inscription.html', {'form': FormulaireUtilisateur()})
 
 def liste_des_enseignants(request):
     enseignants = User.objects.filter(utilisateur__role='Enseignant')
