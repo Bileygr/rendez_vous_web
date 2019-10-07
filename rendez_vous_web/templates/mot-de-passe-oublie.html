@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang='fr'>
+    <head>
+        <title>Rendez-vous web app | Mot de passe oublié</title>
+    </head>
+
+    <body>
+        <h1>Rendez-vous web app | Mot de passe oublié</h1>
+        <a href="{% url 'connexion' %}">Connexion</a>
+        <h2>Un nouveau mot de passe vous sera envoyé.</h2>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.email }}
+            <input type="submit" name="envoyer" value="Envoyer">
+        </form>
+    </body>
+</html>

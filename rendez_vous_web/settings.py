@@ -136,3 +136,17 @@ with open('rendez_vous_web/config/media_root_path.txt') as h:
         os.path.join(BASE_DIR, "static"),
         h.read().strip(),
     ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# Host for sending e-mail.
+EMAIL_HOST = 'smtp.gmail.com'
+
+# Port for sending e-mail.
+EMAIL_PORT = 587
+
+# Optional SMTP authentication information for EMAIL_HOST.
+EMAIL_HOST_USER = 'chesirkeirendezvousapp@gmail.com'
+with open('rendez_vous_web/config/email_password.txt') as i:
+    EMAIL_HOST_PASSWORD = i.read().strip()
+EMAIL_USE_TLS = True

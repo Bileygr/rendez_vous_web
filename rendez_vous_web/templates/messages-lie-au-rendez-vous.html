@@ -1,0 +1,54 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang='fr'>
+    <head>
+        <title>Rendez-vous web app | Messages</title>
+    </head>
+
+    <body>
+        <h1>Rendez-vous web app | Messages</h1>
+        <h2>Objet: {{ objet }}</h2>
+        <h2>Date du rendez-vous: {{ date_du_rdv }}</h2>
+        <h2>Fichier partagé: <a href='{% static "" %}{{ fichier }}' download>Télécharger</a></h2>
+
+        <a href="{% url 'vos_rendez_vous' %}">Vos rendez-vous</a>
+
+        <div id="messages">
+            {% for message in messages%}
+                <p><b>{{ message.utilisateur.user.first_name }} {{ message.utilisateur.user.last_name }} : </b>{{ message.message }}</p>
+            {% endfor %}
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" name="envoyer" id="envoyer" value="Envoyer">
+        </form>
+
+        <script type="text/javascript">
+            $('#envoyer').click(function(evt){
+              evt.preventDefault();
+              $.ajax({
+                  synch: 'true',
+                  type: 'GET',
+                  url: '{% url 'messages_lie_au_rendez_vous' %}',
+                  success: function(data){
+                      $('#messages').html(data);
+                  }
+              });
+            })
+
+            setInterval(function(){
+                $.ajax({
+                  synch: 'true',
+                  type: 'GET',
+                  url: '{% url 'messages_lie_au_rendez_vous' %}',
+                  success: function(data){
+                    console.log("Hello world!");
+                      $('#messages').html(data);
+                  }
+              });
+            }, 5000);
+        </script>
+    </body>
+</html>

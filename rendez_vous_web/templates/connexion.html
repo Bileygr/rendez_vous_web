@@ -9,7 +9,8 @@
         <form method="POST">
             {% csrf_token %}
             {{ form }}
-            <input type="submit" name="inscription" value="Inscription">
+            <input type="submit" name="inscription" value="Connexion">
+            <a href="{% url 'mot_de_passe_oublie' %}">Mot de passe oublié</a>
         </form>
     </body>
 </html>

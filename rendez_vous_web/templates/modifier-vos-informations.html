@@ -6,9 +6,16 @@
 
 	<body>
         <h1>Rendez-vous web app | Modifier vos informations</h1>
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <a href="{% url 'modifier_votre_mot_de_passe' %}">Modifier votre mot de passe</a>
         <form method="POST">
             {% csrf_token %}
-            {{ form }}
+            {{ form.nom }}
+            {{ form.prenom }}
+            {{ form.email }}
+            {{ form.telephone }}
+            <h2>Entrez votre mot de passe avant de cliquer sur modifier:</h2>
+            {{ form.mot_de_passe }}
             <input type="submit" name="modifier" value="Modifier">
         </form>
 	</body>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<title>Rendez-vous web app | Modifier votre mot de passe</title>
+	</head>
+
+	<body>
+        <h1>Rendez-vous web app | Modifier votre mot de passe</h1>
+        <a href="{% url 'accueil' %}">Accueil</a>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" name="modifier" value="Modifier">
+        </form>
+	</body>
+</html>

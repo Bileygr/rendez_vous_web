@@ -36,6 +36,7 @@
                         <form method="POST">
                             {% csrf_token %}
                             <input type='hidden' name='id' value='{{ rendez_vous.id }}'>
+                            <input type='submit' name='message' value='Messages'>
                             <input type='submit' name='modifier' value='Modifier'> 
                             <input type='submit' name='supprimer' id='supprimer' value='Supprimer'> 
                         </form>
