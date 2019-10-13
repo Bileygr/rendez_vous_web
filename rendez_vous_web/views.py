@@ -230,8 +230,8 @@ def prise_de_rendez_vous(request):
                 message_eleve = "Enseigant: "+enseignant.first_name+" "+enseignant.last_name+"\nÉlève: "+user.first_name+" "+user.last_name+"\n\nConfirmer: "+"http://cheikkeita.ddns.net:8005/confirmation/"+str(user.id)+"/"+str(rdv.id)+"\nAnnuler: "+"http://cheikkeita.ddns.net:8005/annulation/"+str(user.id)+"/"+str(rdv.id)+"\nSignaler: "+"http://cheikkeita.ddns.net:8005/signalement/"+str(user.id)+"/"+str(rdv.id)
                 message_enseignant = "Vous avez reçu une nouvelle demande pour un rendez-vous connectez vous ici: http://cheikkeita.ddns.net:8005/connexion."
                 print(utilisateur.role, message_eleve, message_enseignant)
-                send_mail('Demande pour un rendez-vous.', message_eleve, 'Rendez-vous app', [user.email], fail_silently=False,)
-                send_mail('Demande pour un rendez-vous.', message_enseignant, 'Rendez-vous app', [enseignant.email], fail_silently=False,)
+                send_mail('Demande pour un rendez-vous.', message_eleve, 'chesirkeirendezvousapp@gmail.com', [user.email], fail_silently=False,)
+                send_mail('Demande pour un rendez-vous.', message_enseignant, 'chesirkeirendezvousapp@gmail.com', [enseignant.email], fail_silently=False,)
                 return redirect('accueil')
             else:
                 return HttpResponse("La date n'est pas correcte car le rendez-vous doit être dans le futur et non le passé.")
