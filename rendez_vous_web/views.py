@@ -206,7 +206,7 @@ def mot_de_passe_oublie(request):
             user.set_password(mot_de_passe)
             user.save()
             print(mot_de_passe)
-            send_mail('Réinitialisation de votre mot de passe.', 'Votre nouveau mot de passe est '+mot_de_passe+' veuillez le changer une fois connecté.\nhttp://127.0.0.1:8000/connexion', 'chesirkeirendezvousapp@gmail.com', [form.cleaned_data['email']], fail_silently=False,)
+            send_mail('Réinitialisation de votre mot de passe.', 'Votre nouveau mot de passe est '+mot_de_passe+' veuillez le changer une fois connecté.\nhttp://cheikkeita.ddns.net:8005/connexion', 'chesirkeirendezvousapp@gmail.com', [form.cleaned_data['email']], fail_silently=False,)
             return redirect('accueil')
     else:
         form = FormulaireMotDePasseOublie()
@@ -227,8 +227,8 @@ def prise_de_rendez_vous(request):
                 rdv = Rendez_vous.objects.latest('id')
                 creneau = Creneau(rendez_vous=rdv, date=form.cleaned_data['date_du_rdv'])
                 creneau.save()
-                message_eleve = "Enseigant: "+enseignant.first_name+" "+enseignant.last_name+"\nÉlève: "+user.first_name+" "+user.last_name+"\n\nConfirmer: "+"http://127.0.0.1:8000/confirmation/"+str(user.id)+"/"+str(rdv.id)+"\nAnnuler: "+"http://127.0.0.1:8000/annulation/"+str(user.id)+"/"+str(rdv.id)+"\nSignaler: "+"http://127.0.0.1:8000/signalement/"+str(user.id)+"/"+str(rdv.id)
-                message_enseignant = "Vous avez reçu une nouvelle demande pour un rendez-vous connectez vous ici: http://127.0.0.1:8000/connexion."
+                message_eleve = "Enseigant: "+enseignant.first_name+" "+enseignant.last_name+"\nÉlève: "+user.first_name+" "+user.last_name+"\n\nConfirmer: "+"http://cheikkeita.ddns.net:8005/confirmation/"+str(user.id)+"/"+str(rdv.id)+"\nAnnuler: "+"http://cheikkeita.ddns.net:8005/annulation/"+str(user.id)+"/"+str(rdv.id)+"\nSignaler: "+"http://cheikkeita.ddns.net:8005/signalement/"+str(user.id)+"/"+str(rdv.id)
+                message_enseignant = "Vous avez reçu une nouvelle demande pour un rendez-vous connectez vous ici: http://cheikkeita.ddns.net:8005/connexion."
                 print(utilisateur.role, message_eleve, message_enseignant)
                 send_mail('Demande pour un rendez-vous.', message_eleve, 'Rendez-vous app', [user.email], fail_silently=False,)
                 send_mail('Demande pour un rendez-vous.', message_enseignant, 'Rendez-vous app', [enseignant.email], fail_silently=False,)
