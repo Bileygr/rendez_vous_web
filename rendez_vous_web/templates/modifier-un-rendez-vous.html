@@ -1,15 +1,34 @@
-<!DOCTYPE html>
-<html lang="fr">
-	<head>
-		<title>Rendez-vous web app | Modifier un rendez-vous</title>
-	</head>
+{% extends 'accueil.html' %}
 
-	<body>
-        <h1>Rendez-vous web app | Modifier un rendez-vous</h1>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" name="modifier" value="Modifier">
-        </form>
-	</body>
-</html>
+{% block title %}
+    Rendez-vous web app | Modifier un rendez-vous
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app
+{% endblock %}
+
+{% block body %}
+    <h2>Modifier un rendez-vous</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class='form-row'>
+                <label>Objet : </label>
+                {{ form.objet }}
+        </div>
+
+        <div class='form-row'>
+                <label>Message : </label>
+                {{ form.message }}
+        </div>
+        
+        <br>
+
+        <div class="form-group">
+                {{ form.fichier }}
+        </div>
+
+        <input type="submit" name="modifier" class="btn btn-primary btn-lg btn-block" value="Modifier">
+        <a href="{% url 'vos_rendez_vous' %}" class="btn btn-warning btn-lg btn-block">Retour</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'accueil.html' %}
+
+{% block title %}
+    Rendez-vous web app | Créneaux
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app
+{% endblock %}
+
+{% block body %}
+    <h2>Créneaux</h2><br>
+    <a href='{% url "vos_rendez_vous" %}' class='btn btn-outline-dark btn-lg btn-block'>Vos rendez-vous</a><br><br>
+    <div style="text-align: left;">
+        <p><u>Objet</u> : {{ rendez_vous.objet }}</p>
+        <p><u>Élève</u> : {{ rendez_vous.eleve.first_name }} {{ rendez_vous.eleve.last_name }}</p><br>
+    </div>
+    <table id="table_id" class="table">
+        <thead>
+            <tr>
+                <th>Date choisie</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for creneau in les_creneaux %}
+                <tr>
+                    <td>{{ creneau.date }}</td>
+                    <td>{% if creneau.selection == True %}
+                            Oui
+                        {% else %}
+                            Non
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type='hidden' name='id' value='{{ creneau.id }}'>
+                            <input type='submit' name='confirmer' value='Confirmer'> 
+                            <input type='submit' name='annuler' value='Annuler'> 
+                        </form>
+                    </td>  
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript">
+        $('#confirmer').click(function(evt){
+            evt.preventDefault();
+            $.ajax({
+                synch: 'true',
+                type: 'GET',
+                url: '{% url 'vos_rendez_vous' %}',
+                success: function(data){
+                    $('#table').html(data);
+                }
+            });
+        }
+    </script>
+{% endblock %}

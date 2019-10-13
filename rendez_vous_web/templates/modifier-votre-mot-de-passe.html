@@ -1,16 +1,31 @@
-<!DOCTYPE html>
-<html lang="fr">
-	<head>
-		<title>Rendez-vous web app | Modifier votre mot de passe</title>
-	</head>
+{% extends 'accueil.html' %}
 
-	<body>
-        <h1>Rendez-vous web app | Modifier votre mot de passe</h1>
-        <a href="{% url 'accueil' %}">Accueil</a>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" name="modifier" value="Modifier">
-        </form>
-	</body>
-</html>
+{% block title %}
+    Rendez-vous web app | Modifier votre mot de passe
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app
+{% endblock %}
+
+{% block body %}
+    <h2>Modifier votre mot de passe</h2><br>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="inputMot_de_passe">Mot de passe</label>
+            {{ form.mot_de_passe }}
+        </div>
+        <div class="form-group">
+            <label for="inputNouveaumot_de_passe">Nouveau mot de passe</label>
+            {{ form.nouveau_mot_de_passe }}
+        </div>
+        <div class="form-group">
+            <label for="inputConfirmation_du_nouveau_mot_de_passe">Confirmation du nouveau mot de passe</label>
+            {{ form.confirmation_du_nouveau_mot_de_passe }}
+        </div>
+
+        <input type="submit" name="modifier" class="btn btn-primary btn-block" value="Modifier">
+        <a href="{% url 'modifier_vos_informations' %}" class="btn btn-warning btn-block">Retour</a>
+    </form>
+{% endblock %}

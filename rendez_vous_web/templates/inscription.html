@@ -1,17 +1,47 @@
-<!DOCTYPE html>
-<html lang="fr">
-	<head>
-		<title>Rendez-vous web app | Insctiption</title>
-	</head>
+{% extends 'accueil.html' %}
 
-	<body>
-        <h1>Rendez-vous web app | Inscription</h1>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.user.last_name }}
+{% block title %}
+    Rendez-vous web app | Inscription
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app | Inscription
+{% endblock %}
+
+{% block body %}
+    <h2>Inscription</h2><br>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="inputNom">Nom</label>
+            {{ form.nom }}
+        </div>
+        <div class="form-group">
+            <label for="inputPrenom">Prénom</label>
+            {{ form.prenom }}
+        </div>
+        <div class="form-group">
+            <label for="inputMot_de_passe">Mot de passe</label>
+            {{ form.mot_de_passe }}
+        </div>
+        <div class="form-group">
+            <label for="inputConfirmation_mot_de_passe">Confirmation mot de passe</label>
+            {{ form.confirmation_mot_de_passe }}
+        </div>
+        <div class="form-group">
+                <label for="inputEmail">Email</label>
+                {{ form.email }}
+        </div>
+        <div class="form-group">
+            <label for="inputTelephone">Téléphone</label>
             {{ form.telephone }}
+        </div>
+        <div class="form-group">
+            <label for="inputRole">Rôle</label>
             {{ form.role }}
-            <input type="submit" name="inscription" value="Inscription">
-        </form>
-	</body>
-</html>
+        </div>
+
+        <input type="submit" name="inscription" class="btn btn-primary btn-block" value="Inscription">
+        <a href="{% url 'accueil' %}" class="btn btn-warning btn-block">Retour</a>
+    </form>
+{% endblock %}

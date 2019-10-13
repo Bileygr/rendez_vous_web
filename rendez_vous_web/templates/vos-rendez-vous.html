@@ -1,27 +1,36 @@
+{% extends 'accueil.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="fr">
-    <head>
-        <title>Rendez-vous web app | Vos rendez-vous</title>
-    </head>
-    <body>
-        <h1>Rendez-vous web app | Vos rendez-vous</h1>
-        <a href="{% url 'accueil' %}">Accueil</a>
-        <table style="width:100%" id='table'>
-            <tr align="left">
-                <th>ID</th>
-                <th>Professeur</th>
+{% block title %}
+    Rendez-vous web app | Vos rendez-vous
+{% endblock %}
+
+
+{% block head %}
+    Rendez-vous web app
+{% endblock %}
+
+{% block body %}
+    <h2>Vos rendez-vous</h2><br>
+    <a href='{% url "accueil" %}' class='btn btn-outline-dark btn-lg btn-block'>Accueil</a><br><br>
+    <div class="table-responsive">
+    <table id="table_id" class="table">
+        <thead id="table_id" class="table">
+            <tr>
+                <th>Enseignant</th>
                 <th>Téléphone</th>
                 <th>Email</th>
                 <th>Fichier partagé</th>
-                <th>Status</th>
-                <th>Date du rendez-vous</th>
+                <th>Status enseignant</th>
+                <th>Status élève</th>
+                <th>Créneau choisie</th>
+                <th>Signalement</th>
                 <th>Actions</th>
             </tr>
+        </thead>
+        <tbody>
             {% for rendez_vous in les_rendez_vous %}
                 <tr>
-                    <td>{{ rendez_vous.id }}</td>
                     <td>{{ rendez_vous.enseignant.last_name }} {{ rendez_vous.enseignant.first_name }}</td>
                     <td>{{ rendez_vous.enseignant.utilisateur.telephone }}</td>
                     <td>{{ rendez_vous.enseignant.email }}</td> 
@@ -30,33 +39,45 @@
                     {% else %}
                         <td>Aucun fichier</td>
                     {% endif %}
-                    <td>{{ rendez_vous.status }}</td>   
-                    <td>{{ rendez_vous.date_du_rdv }}</td> 
+                    <td>{{ rendez_vous.get_confirmation_enseignant_display }}</td>   
+                    <td>{{ rendez_vous.get_confirmation_eleve_display }}</td> 
+                    <td>
+                        {% if les_creneaux %}
+                            {% for creneau in les_creneaux %}
+                                {% if creneau.rendez_vous.id == rendez_vous.id %}
+                                    {{ creneau.date }}
+                                {% else %}
+                                    Aucun créneau choisie
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Aucun créneau choisie
+                        {% endif %}
+                    </td>  
+                    <td>{% if rendez_vous.signalement == True %}
+                            Oui
+                        {% else %}
+                            Non
+                        {% endif %}
+                    </td>  
                     <td>
                         <form method="POST">
                             {% csrf_token %}
                             <input type='hidden' name='id' value='{{ rendez_vous.id }}'>
+                            <input type='submit' name='confirmer' value='Confirmer'> 
+                            <input type='submit' name='annuler' value='Annuler'>
                             <input type='submit' name='message' value='Messages'>
-                            <input type='submit' name='modifier' value='Modifier'> 
-                            <input type='submit' name='supprimer' id='supprimer' value='Supprimer'> 
+                            {% if utilisateur.role == "élève" %}
+                                <input type='submit' name='modifier' value='Modifier'> 
+                                <input type='submit' name='signaler' value='Signaler'>
+                            {% elif utilisateur.role == "enseignant" %}
+                                <input type='submit' name='creneaux' value='Créneaux'>
+                            {% endif %}
                         </form>
                     </td>  
                 </tr>
             {% endfor %}
-        </table>
-
-        <script type="text/javascript">
-            $('#supprimer').click(function(evt){
-              evt.preventDefault();
-              $.ajax({
-                  synch: 'true',
-                  type: 'GET',
-                  url: '{% url 'vos_rendez_vous' %}',
-                  success: function(data){
-                      $('#table').html(data);
-                  }
-              });
-            }
-        </script>
-    </body>
-</html>
+        </tbody>
+    </table>
+</div>
+{% endblock %}

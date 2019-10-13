@@ -1,19 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
     <head>
-        <title>Rendez-vous web app | Accueil</title>
+        <title>{% block title %}Rendez-vous web app | Accueil{% endblock %}</title>
+        {% block stylesheet %}
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+            <link rel="stylesheet" href="https://v4-alpha.getbootstrap.com/examples/narrow-jumbotron/narrow-jumbotron.css" >
+            <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+        {% endblock %}    
     </head>
     <body>
-        <h1>Rendez-vous web app | Accueil</h1>
-        {% if user.is_authenticated %}
-            <h2>Bonjour {{ user.last_name }} {{ user.first_name }}</h2>
-            <a href="{% url 'liste_des_enseignants' %}">Liste des enseignants</a>
-            <a href="{% url 'vos_rendez_vous' %}">Vos rendez-vous</a>
-            <a href="{% url 'modifier_vos_informations' %}">Modifier vos informations</a>
-            <a href="{% url 'deconnexion' %}">Déconnexion</a>
-        {% else %}
-            <a href="{% url 'connexion' %}">Connexion</a>
-            <a href="{% url 'inscription' %}">Inscription</a>
-        {% endif %}
+        <div class="container">
+            <div class="header clearfix">
+                <h1>{% block head %}Rendez-vous web app | Accueil{% endblock %}</h1>
+            </div>
+
+            <div class="jumbotron">
+                {% block body %}
+                    {% if user.is_authenticated %}
+                        <h2>Bonjour {{ user.first_name }} {{ user.last_name }}</h2><br>
+                        <a href="{% url 'liste_des_enseignants' %}" class="btn btn-primary btn-lg btn-block">Liste des enseignants</a>
+                        <a href="{% url 'vos_rendez_vous' %}" class="btn btn-secondary btn-lg btn-block">Vos rendez-vous</a>
+                        <a href="{% url 'modifier_vos_informations' %}" class="btn btn-warning btn-lg btn-block">Modifier vos informations</a>
+                        <a href="{% url 'deconnexion' %}" class="btn btn-danger btn-lg btn-block">Déconnexion</a>
+                    {% else %}
+                        <a href="{% url 'connexion' %}" class="btn btn-primary btn-lg btn-block">Connexion</a>
+                        <a href="{% url 'inscription' %}" class="btn btn-secondary btn-lg btn-block">Inscription</a>
+                    {% endif %}
+                {% endblock %}
+            </div>
+            <hr>
+
+            <footer>
+                <p>Copyright &copy; Cheik-Siramakan Keita 2019</p>
+            </footer>
+        </div>
+
+        {% block javasscript %}
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+            <script>
+                $(document).ready( function () {
+                    $('#table_id').DataTable();
+                });
+            </script>
+            <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+        {% endblock %}
+        {% block script %}
+        {% endblock %}
     </body>
 </html>

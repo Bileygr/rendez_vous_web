@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from rendez_vous_web.forms import FormulaireUtilisateur
+from django.utils import timezone
 from rendez_vous_web.forms import FormulaireDeConnexionUtilisateur
 from rendez_vous_web.forms import FormulaireDeCreationUtilisateur 
 from rendez_vous_web.forms import FormulaireDePriseDeRendezVous
@@ -14,11 +14,37 @@ from rendez_vous_web.forms import FormulaireObtentionDesID
 from rendez_vous_web.forms import FormulaireDeModificationDuMotDePasse
 from rendez_vous_web.forms import FormulaireMessage
 from rendez_vous_web.forms import FormulaireMotDePasseOublie
-from rendez_vous_web.models import Utilisateur, Rendez_vous, Message
+from rendez_vous_web.models import Creneau, Message, Rendez_vous, Utilisateur
 import random
 
 def accueil(request):
     return render(request, 'accueil.html')
+
+def annulation(request, user_id, rendez_vous_id):
+    user = User.objects.get(id=user_id)
+    utilisateur = Utilisateur.objects.get(user_id=user.id)
+    rdv = Rendez_vous.objects.get(id=rendez_vous_id)
+
+    if utilisateur.role == "élève":
+        rdv.confirmation_eleve = "Annulé"
+    elif utilisateur.role == "enseignant":
+        rdv.confirmation_enseignant = "Annulé"
+
+    rdv.save()
+    return HttpResponse("Rendez_vous annulé.")
+
+def confirmation(request, user_id, rendez_vous_id):
+    user = User.objects.get(id=user_id)
+    utilisateur = Utilisateur.objects.get(user_id=user.id)
+    rdv = Rendez_vous.objects.get(id=rendez_vous_id)
+
+    if utilisateur.role == "élève":
+        rdv.confirmation_eleve = "Confirmé"
+    elif utilisateur.role == "enseignant":
+        rdv.confirmation_enseignant = "Confirmé"
+
+    rdv.save()
+    return HttpResponse("Rendez-vous confirmé.")
 
 def connexion(request):
     if request.method == 'POST':
@@ -30,9 +56,30 @@ def connexion(request):
                 return redirect('accueil')
             else:
                 return redirect('connexion')
+        else:
+            return redirect('connexion')
     else:
         form = FormulaireDeConnexionUtilisateur()
     return render(request, 'connexion.html', {'form': FormulaireDeConnexionUtilisateur})
+
+def creneaux(request):
+    rdv = Rendez_vous.objects.get(id=request.session['rendez_vous_id'])
+    les_creneaux = Creneau.objects.filter(rendez_vous_id=rdv.id)
+    if request.method == 'POST' and 'confirmer' in request.POST:
+        form = FormulaireObtentionDesID(request.POST)
+        if form.is_valid():
+            creneau = Creneau.objects.get(id=form.cleaned_data['id'])
+            creneau.selection = True
+            creneau.save()
+    elif request.method == 'POST' and 'annuler' in request.POST:
+        form = FormulaireObtentionDesID(request.POST)
+        if form.is_valid():
+            creneau = Creneau.objects.get(id=form.cleaned_data['id'])
+            creneau.selection = False
+            creneau.save()
+    else:
+        form = FormulaireObtentionDesID()
+    return render(request, 'créneaux.html', {'form': FormulaireObtentionDesID(), 'les_creneaux': les_creneaux, 'rendez_vous': rdv})
 
 def deconnexion(request):
     logout(request)
@@ -40,21 +87,27 @@ def deconnexion(request):
 
 def inscription(request):
     if request.method == 'POST':
-        form = FormulaireUtilisateur(request.POST)
+        form = FormulaireDeCreationUtilisateur(request.POST)
         if form.is_valid():
-            user = User.objects.create_user(form.cleaned_data['email'], form.cleaned_data['email'], form.cleaned_data['mot_de_passe'])
-            user.last_name = form.cleaned_data['nom']
-            user.first_name = form.cleaned_data['prenom']
-            user.save()
-            user = User.objects.get(email=form.cleaned_data['email'])
-            utilisateur = Utilisateur(user=user, telephone=form.cleaned_data['telephone'], role=form.cleaned_data['role'])
-            utilisateur.save()
-            return redirect('connexion')
+            if form.cleaned_data['mot_de_passe'] == form.cleaned_data['confirmation_mot_de_passe']:
+                user = User.objects.create_user(form.cleaned_data['email'], form.cleaned_data['email'], form.cleaned_data['mot_de_passe'])
+                user.last_name = form.cleaned_data['nom']
+                user.first_name = form.cleaned_data['prenom']
+                user.save()
+                user = User.objects.get(email=form.cleaned_data['email'])
+                utilisateur = Utilisateur(user=user, telephone=form.cleaned_data['telephone'], role=form.cleaned_data['role'])
+                utilisateur.save()
+                return redirect('connexion')
+            else:
+                return redirect('inscription')
+        else:
+            return redirect('inscription')
     else:
-        form = FormulaireUtilisateur()
-    return render(request, 'inscription.html', {'form': FormulaireUtilisateur()})
+        form = FormulaireDeCreationUtilisateur()
+    return render(request, 'inscription.html', {'form': FormulaireDeCreationUtilisateur()})
 
 def liste_des_enseignants(request):
+    utilisateur = Utilisateur.objects.get(user=request.user)
     enseignants = User.objects.filter(utilisateur__role='Enseignant')
     if request.method == 'POST':
         form = FormulaireObtentionDesID(request.POST)
@@ -64,10 +117,14 @@ def liste_des_enseignants(request):
             return redirect('prise_de_rendez_vous')
     else:
         form = FormulaireObtentionDesID()
-    return render(request, 'liste-des-enseignants.html', {'enseignants': enseignants, 'form': FormulaireObtentionDesID})
+    return render(request, 'liste-des-enseignants.html', {'enseignants': enseignants, 'form': FormulaireObtentionDesID(), 'utilisateur': utilisateur})
 
 def messages_lie_au_rendez_vous(request):
     rendez_vous = Rendez_vous.objects.get(id=request.session['rendez_vous_id'])
+    try:
+        creneau = Creneau.objects.get(Q(rendez_vous=rendez_vous) & Q(selection=True))
+    except:
+        creneau = None
     utilisateur = Utilisateur.objects.get(user=request.user)
     messages = Message.objects.filter(rendez_vous=rendez_vous).order_by('dateajout')
     if request.method == 'POST':
@@ -77,7 +134,7 @@ def messages_lie_au_rendez_vous(request):
             message.save()
     else:
         form = FormulaireMessage()
-    return render(request, 'messages-lie-au-rendez-vous.html', {'form': FormulaireMessage(), 'messages': messages, 'objet': rendez_vous.objet, 'date_du_rdv': rendez_vous.date_du_rdv, 'fichier': rendez_vous.fichier})
+    return render(request, 'messages-lie-au-rendez-vous.html', {'creneau': creneau,'form': FormulaireMessage(), 'rdv_message': rendez_vous.message, 'messages': messages, 'objet': rendez_vous.objet, 'fichier': rendez_vous.fichier})
 
 def modifier_un_rendez_vous(request):
     rendez_vous = Rendez_vous.objects.get(id=request.session['rendez_vous_id'])
@@ -86,7 +143,6 @@ def modifier_un_rendez_vous(request):
         if form.is_valid():
             rendez_vous.objet = form.cleaned_data['objet'] 
             rendez_vous.message = form.cleaned_data['message']
-            rendez_vous.date_du_rdv = form.cleaned_data['date_du_rdv']
 
             if 'fichier' in request.FILES:
                 rendez_vous.fichier = request.FILES['fichier']
@@ -95,8 +151,7 @@ def modifier_un_rendez_vous(request):
             return redirect('vos_rendez_vous')
     else:
         form = FormulaireDePriseDeRendezVous()
-    return render(request, 'modifier-un-rendez-vous.html', {'form': FormulaireDePriseDeRendezVous(initial={'objet': rendez_vous.objet, 'date_du_rdv': rendez_vous.date_du_rdv,
-    'message': rendez_vous.message})})
+    return render(request, 'modifier-un-rendez-vous.html', {'form': FormulaireDePriseDeRendezVous(initial={'objet': rendez_vous.objet, 'message': rendez_vous.message})})
 
 def modifier_vos_informations(request):
     user = User.objects.get(id=request.user.id)
@@ -131,6 +186,10 @@ def modifier_votre_mot_de_passe(request):
                     return redirect('deconnexion')
                 else:
                   return redirect('modifier-votre-mot-de-passe')  
+            else:
+                return redirect('modifier-votre-mot-de-passe')
+        else:
+            return redirect('modifier-votre-mot-de-passe')
     else:
         form = FormulaireDeModificationDuMotDePasse()
     return render(request, 'modifier-votre-mot-de-passe.html', {'form': FormulaireDeModificationDuMotDePasse()})
@@ -147,7 +206,7 @@ def mot_de_passe_oublie(request):
             user.set_password(mot_de_passe)
             user.save()
             print(mot_de_passe)
-            send_mail('Réinitialisation de votre mot de passe', 'Votre nouveau mot de passe est '+mot_de_passe+' veuillez le changer une fois connecté.', 'chesirkeirendezvousapp@gmail.com', [form.cleaned_data['email']], fail_silently=False,)
+            send_mail('Réinitialisation de votre mot de passe.', 'Votre nouveau mot de passe est '+mot_de_passe+' veuillez le changer une fois connecté.\nhttp://127.0.0.1:8000/connexion', 'chesirkeirendezvousapp@gmail.com', [form.cleaned_data['email']], fail_silently=False,)
             return redirect('accueil')
     else:
         form = FormulaireMotDePasseOublie()
@@ -155,21 +214,74 @@ def mot_de_passe_oublie(request):
 
 def prise_de_rendez_vous(request):
     enseignant = User.objects.get(id=request.session['enseignant_id'])
+    user = User.objects.get(id=request.user.id)
+    utilisateur = Utilisateur.objects.get(user_id=user.id)
     if request.method == 'POST':
         form = FormulaireDePriseDeRendezVous(request.POST, request.FILES)
         if form.is_valid():
-            rdv = Rendez_vous(objet=form.cleaned_data['objet'], enseignant=enseignant, eleve=request.user, message=form.cleaned_data['message'], date_du_rdv=form.cleaned_data['date_du_rdv'], status='en_attente')
-            if 'fichier' in request.FILES:
-                rdv.fichier = request.FILES['fichier']
-            rdv.save()
-            return redirect('accueil')
+            if form.cleaned_data['date_du_rdv'] > timezone.now():
+                rdv = Rendez_vous(objet=form.cleaned_data['objet'], enseignant=enseignant, eleve=request.user, message=form.cleaned_data['message'])
+                if 'fichier' in request.FILES:
+                    rdv.fichier = request.FILES['fichier']
+                rdv.save()
+                rdv = Rendez_vous.objects.latest('id')
+                creneau = Creneau(rendez_vous=rdv, date=form.cleaned_data['date_du_rdv'])
+                creneau.save()
+                message_eleve = "Enseigant: "+enseignant.first_name+" "+enseignant.last_name+"\nÉlève: "+user.first_name+" "+user.last_name+"\n\nConfirmer: "+"http://127.0.0.1:8000/confirmation/"+str(user.id)+"/"+str(rdv.id)+"\nAnnuler: "+"http://127.0.0.1:8000/annulation/"+str(user.id)+"/"+str(rdv.id)+"\nSignaler: "+"http://127.0.0.1:8000/signalement/"+str(user.id)+"/"+str(rdv.id)
+                message_enseignant = "Vous avez reçu une nouvelle demande pour un rendez-vous connectez vous ici: http://127.0.0.1:8000/connexion."
+                print(utilisateur.role, message_eleve, message_enseignant)
+                send_mail('Demande pour un rendez-vous.', message_eleve, 'Rendez-vous app', [user.email], fail_silently=False,)
+                send_mail('Demande pour un rendez-vous.', message_enseignant, 'Rendez-vous app', [enseignant.email], fail_silently=False,)
+                return redirect('accueil')
+            else:
+                return HttpResponse("La date n'est pas correcte car le rendez-vous doit être dans le futur et non le passé.")
     else:
         form = FormulaireDePriseDeRendezVous()
     return render(request, 'prise-de-rendez-vous.html', {'enseignant': enseignant, 'form': form})
 
+def signalement(request, user_id, rendez_vous_id):
+    user = User.objects.get(id=user_id)
+    utilisateur = Utilisateur.objects.get(user_id=user.id)
+    rdv = Rendez_vous.objects.get(id=rendez_vous_id)
+
+    if utilisateur.role == "élève":
+        rdv.signalement = True
+        rdv.save()
+    else:
+        redirect('accueil')
+    return HttpResponse("Ce rendez-vous a été signalé")
+
 def vos_rendez_vous(request):
     les_rendez_vous = Rendez_vous.objects.filter(Q(eleve=request.user.id) | Q(enseignant=request.user.id))
-    if request.method == 'POST' and 'message' in request.POST:
+    utilisateur = Utilisateur.objects.get(user=request.user)
+    if utilisateur.role == "élève":
+        les_creneaux = Creneau.objects.filter(Q(selection=True) & Q(rendez_vous__eleve=request.user.id))
+    else:
+        les_creneaux = Creneau.objects.filter(Q(selection=True) & Q(rendez_vous__enseignant=request.user.id))
+    if request.method == 'POST' and 'annuler' in request.POST:
+        form = FormulaireObtentionDesID(request.POST)
+        if form.is_valid():
+            rdv = Rendez_vous.objects.get(id=form.cleaned_data['id'])
+            if utilisateur.role == 'élève':
+                rdv.confirmation_eleve = "Annulé"
+            elif utilisateur.role == 'enseignant':
+                rdv.confirmation_enseignant = "Annulé"
+            rdv.save()
+    elif request.method == 'POST' and 'confirmer' in request.POST:
+        form = FormulaireObtentionDesID(request.POST)
+        if form.is_valid():
+            rdv = Rendez_vous.objects.get(id=form.cleaned_data['id'])
+            if utilisateur.role == 'élève':
+                rdv.confirmation_eleve = "Confirmé"
+            elif utilisateur.role == 'enseignant':
+                rdv.confirmation_enseignant = "Confirmé"
+            rdv.save()
+    elif request.method == 'POST' and 'creneaux' in request.POST:
+        form = FormulaireObtentionDesID(request.POST)
+        if form.is_valid():
+            request.session['rendez_vous_id'] = form.cleaned_data['id']
+            return redirect('creneaux')
+    elif request.method == 'POST' and 'message' in request.POST:
         form = FormulaireObtentionDesID(request.POST)
         if form.is_valid():
             request.session['rendez_vous_id'] = form.cleaned_data['id']
@@ -177,13 +289,14 @@ def vos_rendez_vous(request):
     elif request.method == 'POST' and 'modifier' in request.POST:
         form = FormulaireObtentionDesID(request.POST)
         if form.is_valid():
-            id = form.cleaned_data['id']
-            request.session['rendez_vous_id'] = id
+            request.session['rendez_vous_id'] = form.cleaned_data['id']
             return redirect('modifier_un_rendez_vous')
-    elif request.method == 'POST' and 'supprimer' in request.POST:
+    elif request.method == 'POST' and 'signaler' in request.POST:
         form = FormulaireObtentionDesID(request.POST)
         if form.is_valid():
-            Rendez_vous.objects.filter(id=form.cleaned_data['id']).delete()
+            rdv = Rendez_vous.objects.get(id=form.cleaned_data['id'])
+            rdv.signalement = True
+            rdv.save()
     else:
         form = FormulaireObtentionDesID()
-    return render(request, 'vos-rendez-vous.html', {'les_rendez_vous': les_rendez_vous, 'form': FormulaireObtentionDesID})
+    return render(request, 'vos-rendez-vous.html', {'les_creneaux': les_creneaux, 'les_rendez_vous': les_rendez_vous, 'form': FormulaireObtentionDesID(), 'utilisateur': utilisateur})

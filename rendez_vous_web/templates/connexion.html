@@ -1,16 +1,31 @@
-<!DOCTYPE html>
-<html lang='fr'>
-    <head>
-        <title>Rendez-vous web app | Connexion</title>
-    </head>
+{% extends 'accueil.html' %}
 
-    <body>
-        <h1>Rendez-vous web app | Connexion</h1>
-        <form method="POST">
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" name="inscription" value="Connexion">
-            <a href="{% url 'mot_de_passe_oublie' %}">Mot de passe oublié</a>
-        </form>
-    </body>
-</html>
+{% block title %}
+    Rendez-vous web app | Connexion
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app
+{% endblock %}
+
+{% block body %}
+    <h2>Connexion</h2><br>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputEmail">Email</label>
+            <input type="text" class="form-control" name="email" id="inputEmail" placeholder="Email" required autofocus>
+          </div>
+                
+          <div class="form-group col-md-6">
+            <label for="inputMot_de_passe">Mot de passe</label>
+            <input type="password" name="mot_de_passe" id="inputMot_de_passe" class="form-control" placeholder="Mot de passe" required>
+          </div>
+        </div>
+
+        <input type="submit" name="inscription" class="btn btn-primary btn-block" value="Connexion">
+        <a href="{% url 'mot_de_passe_oublie' %}" class="btn btn-secondary btn-block" >Mot de passe oublié</a>
+        <a href="{% url 'accueil' %}" class="btn btn-warning btn-block">Retour</a>
+    </form>
+{% endblock %}

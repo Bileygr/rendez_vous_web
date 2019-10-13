@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html lang='fr'>
-    <head>
-        <title>Rendez-vous web app | Mot de passe oublié</title>
-    </head>
+{% extends 'accueil.html' %}
 
-    <body>
-        <h1>Rendez-vous web app | Mot de passe oublié</h1>
-        <a href="{% url 'connexion' %}">Connexion</a>
-        <h2>Un nouveau mot de passe vous sera envoyé.</h2>
-        <form method="POST">
-            {% csrf_token %}
+{% block title %}
+    Rendez-vous web app | Mot de passe oublié
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app | Mot de passe oublié
+{% endblock %}
+
+{% block body %}
+    <h2>Un nouveau mot de passe vous sera envoyé.</h2><br>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-row">
             {{ form.email }}
-            <input type="submit" name="envoyer" value="Envoyer">
-        </form>
-    </body>
-</html>
+        </div><br>
+        <input type="submit" name="envoyer" class="btn btn-primary btn-block" value="Envoyer">
+        <a href="{% url 'connexion' %}" class="btn btn-warning btn-block">Retour</a>
+    </form>
+{% endblock %}

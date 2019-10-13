@@ -1,16 +1,39 @@
-<!DOCTYPE html>
-<html lang="fr">
-	<head>
-		<title>Rendez-vous web app | Prise de rendez-vous</title>
-	</head>
+{% extends 'accueil.html' %}
 
-	<body>
-        <h1>Rendez-vous web app | Prise de rendez-vous</h1>
-        <h2>Enseignant: {{ enseignant.last_name }} {{ enseignant.first_name }}</h2>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" name="prise_de_rendez_vous" value="Prise du rendez-vous">
-        </form>
-	</body>
-</html>
+{% block title %}
+    Rendez-vous web app | Prise de rendez-vous
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app
+{% endblock %}
+
+{% block body %}
+    <h2>Prise de rendez-vous</h2>
+    <h3><u>Enseignant(e)</u> : {{ enseignant.last_name }} {{ enseignant.first_name }}</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class='form-row'>
+            <div class="form-group col-md-6">
+                <label>Objet</label>
+                {{ form.objet }}
+            </div>
+
+            <div class="form-group col-md-6">
+                    <label>Créneau</label>
+                    {{ form.date_du_rdv }}
+            </div>
+        </div>
+
+        <div class="form-group basic-textarea rounded-corners">
+            <label>Message</label>
+            {{ form.message }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.fichier }}
+        </div>
+        <input type="submit" name="prise_de_rendez_vous" class="btn btn-primary btn-lg btn-block" value="Prise du rendez-vous">
+        <a href="{% url 'liste_des_enseignants' %}" class="btn btn-warning btn-lg btn-block">Retour</a>
+    </form>
+{% endblock %}

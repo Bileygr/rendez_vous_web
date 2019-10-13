@@ -1,35 +1,46 @@
-<!DOCTYPE html>
-<html lang="fr">
-    <head>
-        <title>Rendez-vous web app | Liste des enseignants</title>
-    </head>
-    <body>
-        <h1>Rendez-vous web app | Liste des enseignants</h1>
-        <a href="{% url 'accueil' %}">Accueil</a>
-        <table style="width:100%">
-            <tr align="left">
-                <th>ID</th>
+{% extends 'accueil.html' %}
+
+{% block title %}
+    Rendez-vous web app | Liste des enseignants
+{% endblock %}
+
+{% block head %}
+    Rendez-vous web app
+{% endblock %}
+
+{% block body %}
+    <h2>Liste des enseignants</h2><br>
+    <a href='{% url "accueil" %}' class='btn btn-outline-dark btn-lg btn-block'>Accueil</a><br><br>
+    <table id="table_id" class="table">
+        <thead>
+            <tr>
                 <th>Nom</th>
                 <th>Prénom</th>
                 <th>Téléphone</th>
                 <th>Email</th>
+                {% if utilisateur.role == "élève" %} 
+                    <th>Actions</th>
+                {% endif %} 
             </tr>
+        </thead>
+        <tbody>
             {% for enseignant in enseignants %}
                 <tr>
-                    <td>{{ enseignant.id}}</td>
                     <td>{{ enseignant.last_name}}</td>
                     <td>{{ enseignant.first_name}}</td>
                     <td>{{ enseignant.utilisateur.telephone}}</td>
                     <td>{{ enseignant.email}}</td>
-                    <td>
-                        <form method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="id" value="{{ enseignant.id }}">
-                            <input type="submit" name="rendez-vous" value="RDV">
-                        </form>
-                    </td>        
+                    {% if utilisateur.role == "élève" %}    
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ enseignant.id }}">
+                                <input type="submit" name="rendez-vous" value="RDV">
+                            </form>
+                        </td> 
+                    {% endif %}       
                 </tr>
             {% endfor %}
-          </table>
-    </body>
-</html>
+        </tbody>
+    </table>
+{% endblock %}
