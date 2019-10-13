@@ -24,9 +24,10 @@ with open('rendez_vous_web/config/secret_key.txt') as f:
     SECRET_KEY = f.read().strip()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+with open('rendez_vous_web/config/debug_status.txt') as j:
+    DEBUG = j.read().strip()
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'cheikkeita.ddns.net']
 
 with open('rendez_vous_web/config/media_root_path.txt') as g:    
     MEDIA_ROOT = g.read().strip()
