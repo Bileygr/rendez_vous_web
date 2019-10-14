@@ -11,6 +11,7 @@
 {% block body %}
     <h2>Liste des enseignants</h2><br>
     <a href='{% url "accueil" %}' class='btn btn-outline-dark btn-lg btn-block'>Accueil</a><br><br>
+    <div class="table-responsive">
     <table id="table_id" class="table">
         <thead>
             <tr>
@@ -43,4 +44,5 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 {% endblock %}
